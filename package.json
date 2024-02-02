@@ -1,0 +1,24 @@
+{
+  "name": "ttsaver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "tsc && node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@tobyg74/tiktok-api-dl": "^1.0.13",
+    "chunk": "^0.0.3",
+    "puregram": "^2.25.1",
+    "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "@types/chunk": "^0.0.2",
+    "@types/heic-convert": "^1.2.3",
+    "@types/node": "^20.11.14"
+  }
+}

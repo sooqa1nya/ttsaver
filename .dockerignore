@@ -1,3 +1,2 @@
 /node_modules
-v1.ts
-/config/dev.json
+.gitignore

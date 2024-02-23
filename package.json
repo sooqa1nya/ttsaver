@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "tsc && node index.js"
+    "start": "tsc && node dist/index.js"
   },
   "keywords": [],
   "author": "",
@@ -13,12 +13,13 @@
   "dependencies": {
     "@tobyg74/tiktok-api-dl": "^1.0.13",
     "chunk": "^0.0.3",
+    "dotenv": "^16.4.5",
     "puregram": "^2.25.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "ytdl-core": "^4.11.5"
   },
   "devDependencies": {
     "@types/chunk": "^0.0.2",
-    "@types/heic-convert": "^1.2.3",
     "@types/node": "^20.11.14"
   }
 }

@@ -15,7 +15,11 @@ interface ILocalDownload<T> {
 export const local_download = async <T extends 'photo' | 'video'>(urls: Array<string>, type: T): Promise<ILocalDownload<T>> => {
 
     const fileName = new Date().getTime();
-    const format = type === 'photo' ? '.png' : '.mp4';
+    enum Formats {
+        photo = ".png",
+        video = '.mp4'
+    }
+    const format = Formats[type];
     let allDirectories: Array<string> = [];
 
     for (let i = 0; i < urls.length; i++) {

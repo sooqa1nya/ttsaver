@@ -1,12 +1,12 @@
 import { MediaSource, MessageContext, NextMiddleware } from 'puregram';
-import { TiktokDL } from '@tobyg74/tiktok-api-dl';
+import { Downloader } from '@tobyg74/tiktok-api-dl';
 import chunk from 'chunk';
 
 import { local_download, local_unlink } from '../local-download';
 import { TelegramInputMediaPhoto } from 'puregram/generated';
 
 
-const REGEXP = /(?<url>https?:\/\/(?:m|www|vm|vt).tiktok.com\/.*\/)/;
+const REGEX = /(?<url>https?:\/\/(?:m|www|vm|vt).tiktok.com\/.*\/)/;
 
 export const tiktokHandler = async (context: MessageContext, next: NextMiddleware) => {
 
@@ -14,15 +14,15 @@ export const tiktokHandler = async (context: MessageContext, next: NextMiddlewar
         return;
     }
 
-    if (!REGEXP.test(context.text)) {
+    if (!REGEX.test(context.text)) {
         return await next();
     }
 
 
-    const url_ctx = context.text.match(REGEXP);
+    const url_ctx = context.text.match(REGEX);
 
-    await TiktokDL(url_ctx!.groups!.url, {
-        version: "v3"
+    await Downloader(url_ctx!.groups!.url, {
+        version: "v1"
     }).then(async (output: any) => {
 
         if (output.status === 'error') {
@@ -38,10 +38,10 @@ export const tiktokHandler = async (context: MessageContext, next: NextMiddlewar
                 let message: MessageContext;
 
                 const result = output.result;
-                const video = "video2" in output.result ? result.video2 : result.video1;
+                const video = result.video.playAddr;
 
                 try {
-                    message = await context.sendVideo(MediaSource.url(output.result.video2), { disable_notification: true });
+                    message = await context.sendVideo(MediaSource.url(video), { disable_notification: true });
                 } catch {
                     const ld = await local_download([video], 'video');
                     try { message = await context.sendVideo(ld.media, { disable_notification: true }); }

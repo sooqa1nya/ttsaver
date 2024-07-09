@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@tobyg74/tiktok-api-dl": "^1.0.13",
+    "@tobyg74/tiktok-api-dl": "^1.1.8",
     "chunk": "^0.0.3",
     "dotenv": "^16.4.5",
     "puregram": "^2.25.1",

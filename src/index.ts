@@ -1,8 +1,9 @@
 import { Telegram } from 'puregram';
 import 'dotenv/config';
 
-import { local_isTemp } from './local-download';
-import { isBot, tiktokHandler, youtubeHandler } from './handlers';
+import { isTemp } from './isTemp';
+import { inlineQueryHandler, messagesHandler } from './handlers';
+import { isBot } from './handlers/isBot';
 
 
 const telegram = new Telegram({
@@ -10,20 +11,15 @@ const telegram = new Telegram({
     apiRetryLimit: -1
 });
 
-// Отправлено ли сообщение ботом
 telegram.updates.on('message', isBot);
-
-// TikTok
-telegram.updates.on('message', tiktokHandler);
-
-// YouTube
-telegram.updates.on('message', youtubeHandler);
+telegram.updates.on('message', messagesHandler);
+telegram.updates.on('inline_query', inlineQueryHandler);
 
 
 telegram.updates
     .startPolling()
     .then(async () => {
-        console.log('Бот запущен');
-        await local_isTemp();
+        console.log('Бот запущен.');
+        await isTemp();
     })
     .catch(err => console.log('Ошибка запуска puregram:', err));

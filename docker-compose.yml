@@ -1,0 +1,40 @@
+services:
+  cobalt-api:
+    image: ghcr.io/imputnet/cobalt:11
+
+    init: true
+    read_only: true
+    restart: unless-stopped
+    container_name: cobalt-api
+
+    ports:
+      - 9000:9000/tcp
+
+    environment:
+      API_URL: "http://cobalt-api:9000/"
+    # COOKIE_PATH: "/cookies.json"
+
+    labels:
+      - com.centurylinklabs.watchtower.scope=cobalt
+    # volumes:
+    # - ./cookies.json:/cookies.json
+    networks:
+      - SaverAndCobalt
+
+  watchtower:
+    image: ghcr.io/containrrr/watchtower
+    restart: unless-stopped
+    command: --cleanup --scope cobalt --interval 900 --include-restarting
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  ttsaver:
+    image: #your image:latest
+    restart: unless-stopped
+    networks:
+      - SaverAndCobalt
+    depends_on:
+      - cobalt-api
+
+networks:
+  SaverAndCobalt:

@@ -11,12 +11,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@tobyg74/tiktok-api-dl": "^1.1.8",
+    "axios": "^1.11.0",
     "chunk": "^0.0.3",
     "dotenv": "^16.4.5",
     "puregram": "^2.25.1",
-    "typescript": "^5.3.3",
-    "ytdl-core": "^4.11.5"
+    "typescript": "^5.3.3"
   },
   "devDependencies": {
     "@types/chunk": "^0.0.2",

@@ -11,18 +11,10 @@ export const messagesHandler = async (context: MessageContext, next: NextMiddlew
         return;
     }
 
-    let downloadUrl = '';
+    const match = supportREGEX.map(r => context.text.match(r)).find(Boolean);
+    const downloadUrl = match ? match[0] : null;
 
-    for (let i = 0; i < supportREGEX.length; i++) {
-        const matches = context.text.match(supportREGEX[i]);
-        if (!!matches) {
-            downloadUrl = matches[0];
-            break;
-        }
-    }
-
-
-    if (!downloadUrl.length) {
+    if (!downloadUrl) {
         return await next();
     }
 

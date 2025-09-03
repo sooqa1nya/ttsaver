@@ -18,14 +18,6 @@ export const messagesHandler = async (context: MessageContext, next: NextMiddlew
         return await next();
     }
 
-    if (!context.isPM()) {
-        if (context.hasFrom()) {
-            if (context.from.id == 650269699) {
-                await context.delete();
-            }
-        }
-    }
-
     const linksForDownload: Array<string> = [];
     const cobaltData = await cobalt(downloadUrl);
 

@@ -21,33 +21,31 @@ export const messagesHandler = async (context: MessageContext, next: NextMiddlew
     const linksForDownload: Array<string> = [];
     const cobaltData = await cobalt(downloadUrl);
 
-    if (!cobaltData) {
+    if (!cobaltData || cobaltData.status == 'error') {
         await context.setReaction('💔');
 
         console.error(downloadUrl, cobaltData);
-        await context.send('[ERROR] Downloader error (#1001)', { chat_id: <string>process.env.chatlog });
+        const errorCore = !cobaltData ? '1001' : '1002';
+        await context.send(`[ERROR] Downloader error (#${errorCore})`, { chat_id: <string>process.env.chatlog });
 
         return;
     }
 
 
-    if (cobaltData.status == 'error') {
-        await context.setReaction('💔');
-
-        console.error(downloadUrl, cobaltData);
-        await context.send('[ERROR] Downloader error (#1002)', { chat_id: <string>process.env.chatlog });
-
-        return;
-    } else if (cobaltData.status == 'picker') {
-        for (let i = 0; i < cobaltData.picker.length; i++) {
-            linksForDownload.push(cobaltData.picker[i].url);
-        }
-    } else if (
-        cobaltData.status == 'tunnel'
-        || cobaltData.status == 'redirect'
-        || cobaltData.status == 'stream'
-    ) {
-        linksForDownload.push(cobaltData.url);
+    switch (cobaltData.status) {
+        case 'picker':
+            for (let i = 0; i < cobaltData.picker.length; i++) {
+                linksForDownload.push(cobaltData.picker[i].url);
+            }
+            break;
+        case 'tunnel':
+        case 'redirect':
+        case 'stream':
+            linksForDownload.push(cobaltData.url);
+            break;
+        default:
+            await context.send(`[ERROR] Cobalt status (${cobaltData.status}) not found.`, { chat_id: <string>process.env.chatlog });
+            return;
     }
 
     const ld = await localDownload(linksForDownload);

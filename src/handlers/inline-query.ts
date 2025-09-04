@@ -19,50 +19,41 @@ export const inlineQueryHandler = async (context: InlineQueryContext & MessageCo
 
     const cobaltData = await cobalt(context.query);
 
-    if (!cobaltData) {
+    if (!cobaltData || cobaltData.status == 'error') {
+        const errorCore = !cobaltData ? '1001' : '1002';
         await context.answerInlineQuery([
             {
                 type: 'article',
                 id: UID,
-                title: '💔 Downloader error (#1001)',
+                title: `💔 Downloader error (#${errorCore})`,
                 input_message_content:
                 {
                     message_text: 'Hola 😁'
                 }
             }
         ]);
+
         console.error(query, cobaltData);
-        await sendMessage(<string>process.env.chatlog, '[ERROR] Downloader error (#1001)');
+        await sendMessage(<string>process.env.chatlog, `[ERROR] Downloader error (#${errorCore})`);
 
         return;
     }
 
-    if (cobaltData.status == 'error') {
-        await context.answerInlineQuery([
-            {
-                type: 'article',
-                id: UID,
-                title: '💔 Downloader error (#1002)',
-                input_message_content:
-                {
-                    message_text: 'Hola 😁'
-                }
-            }
-        ]);
-        console.error(query, cobaltData);
-        await sendMessage(<string>process.env.chatlog, '[ERROR] Downloader error (#1002)');
 
-        return;
-    } else if (cobaltData.status == 'picker') {
-        for (let i = 0; i < cobaltData.picker.length; i++) {
-            linksForDownload.push(cobaltData.picker[i].url);
-        }
-    } else if (
-        cobaltData.status == 'tunnel'
-        || cobaltData.status == 'redirect'
-        || cobaltData.status == 'stream'
-    ) {
-        linksForDownload.push(cobaltData.url);
+    switch (cobaltData.status) {
+        case 'picker':
+            for (let i = 0; i < cobaltData.picker.length; i++) {
+                linksForDownload.push(cobaltData.picker[i].url);
+            }
+            break;
+        case 'tunnel':
+        case 'redirect':
+        case 'stream':
+            linksForDownload.push(cobaltData.url);
+            break;
+        default:
+            await context.send(`[ERROR] Cobalt status (${cobaltData.status}) not found.`, { chat_id: <string>process.env.chatlog });
+            return;
     }
 
     const ld = await localDownload(linksForDownload);

@@ -53,15 +53,3 @@ class Cobalt {
 }
 
 export const cobalt = new Cobalt();
-
-export const supportREGEX = [
-    /(https?:\/\/)?(www\.)?youtu(be)?\.(be|com)\/[\S]+/,
-    /(https?:\/\/)?(dd)?(?:m|www|vm|vt)\.instagram\.com\/(reel|p)\/([\S]+)/,
-    /(https?:\/\/)?(?:m|www|vm|vt)\.tiktok\.com\/[\S]+/,
-    /(https?:\/\/)?vk\.com\/([\S]+)/,
-    /(https?:\/\/)?(?:on\.)?soundcloud\.com\/([\S]+)/,
-    /(https?:\/\/)?pin\.it\/([\S]+)/,
-    /(https?:\/\/)?x\.com\/([\S]+)/,
-    /(https?:\/\/)?twitter\.com\/([\S]+)/,
-    /(https?:\/\/)?(www\.)?twitch\.(tv)\/[\S]+\/clip\/[\S]+/
-];

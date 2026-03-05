@@ -7,18 +7,24 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "tsc && node dist/index.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sooqa1nya/ttsaver.git"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sooqa1nya/ttsaver/issues"
+  },
+  "homepage": "https://github.com/sooqa1nya/ttsaver#readme",
   "dependencies": {
-    "axios": "^1.11.0",
-    "chunk": "^0.0.3",
-    "dotenv": "^16.4.5",
-    "puregram": "^2.25.1",
-    "typescript": "^5.3.3"
+    "axios": "^1.13.6",
+    "dotenv": "^17.3.1",
+    "gramio": "^0.7.0",
+    "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "@types/chunk": "^0.0.2",
-    "@types/node": "^20.11.14"
+    "@types/node": "^25.3.3"
   }
 }

@@ -1,6 +1,6 @@
 services:
   cobalt-api:
-    image: ghcr.io/imputnet/cobalt:11
+    image: ghcr.io/imputnet/cobalt:staging
 
     init: true
     read_only: true
@@ -22,14 +22,17 @@ services:
       - SaverAndCobalt
 
   watchtower:
-    image: ghcr.io/containrrr/watchtower
+    image: nickfedor/watchtower:latest
     restart: unless-stopped
     command: --cleanup --scope cobalt --interval 900 --include-restarting
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
   ttsaver:
-    image: #your image:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ttsaver
     restart: unless-stopped
     networks:
       - SaverAndCobalt

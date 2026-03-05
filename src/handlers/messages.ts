@@ -1,83 +1,76 @@
-import { InputMedia, MediaSource, MessageContext, NextMiddleware } from 'puregram';
-
-import { cobalt, supportREGEX } from '../cobalt-api';
-import { localDownload, localUnlink } from '../local-download';
-import { TelegramInputMediaPhoto } from 'puregram/generated';
-import chunk from 'chunk';
+import { Bot, chunk, MediaInput, MediaUpload, MessageContext, TelegramParams } from 'gramio';
+import { cobalt } from '../services/cobalt';
+import { localDownload } from '../services/local-download';
 
 
-export const messagesHandler = async (context: MessageContext, next: NextMiddleware) => {
-    if (!context.hasText()) {
+export const handleMessages = async (context: MessageContext<Bot>) => {
+    if (!context.hasText())
         return;
-    }
 
-    const match = supportREGEX.map(r => context.text.match(r)).find(Boolean);
-    const downloadUrl = match ? match[0] : null;
+    let files: {
+        type: 'video' | 'photo' | 'gif' | 'audio';
+        format: 'url' | 'path';
+        file: string;
+    }[] = [];
 
-    if (!downloadUrl) {
-        return await next();
-    }
-
-    const linksForDownload: Array<string> = [];
-    const cobaltData = await cobalt(downloadUrl);
-
-    if (!cobaltData || cobaltData.status == 'error') {
-        await context.setReaction('💔');
-
-        console.error(downloadUrl, cobaltData);
-        const errorCore = !cobaltData ? '1001' : '1002';
-        await context.send(`[ERROR] Downloader error (#${errorCore})`, { chat_id: <string>process.env.chatlog });
-
-        return;
-    }
-
-
-    switch (cobaltData.status) {
-        case 'picker':
-            for (let i = 0; i < cobaltData.picker.length; i++) {
-                linksForDownload.push(cobaltData.picker[i].url);
-            }
-            break;
-        case 'tunnel':
-        case 'redirect':
-        case 'stream':
-            linksForDownload.push(cobaltData.url);
-            break;
-        default:
-            await context.send(`[ERROR] Cobalt status (${cobaltData.status}) not found.`, { chat_id: <string>process.env.chatlog });
-            return;
-    }
-
-    const ld = await localDownload(linksForDownload);
+    let mediaGroup: TelegramParams.SendMediaGroupParams["media"] = [];
 
     try {
-        let message: MessageContext | null = null;
+        const download = await cobalt.download(context.text);
 
-        if (ld.extension == '.mp4') {
-            message = await context.sendVideo(MediaSource.path(ld.directories[0]), { disable_notification: true });
-        } else if (ld.extension == '.jpg') {
-            const photos: Array<TelegramInputMediaPhoto> = [];
-            photos.push(...ld.directories.map(dir => InputMedia.photo(MediaSource.path(dir))));
-
-            const photosChunk = chunk(photos, 10);
-
-            for (const photos of photosChunk) {
-                await context.sendMediaGroup(photos, { disable_notification: true });
+        if (download.status === 'redirect') {
+            files.push({
+                type: await cobalt.getFileType(download.filename),
+                format: 'url',
+                file: download.url
+            });
+        } else if (download.status === 'tunnel') {
+            files.push({
+                type: await cobalt.getFileType(download.filename),
+                format: 'path',
+                file: await localDownload.download(download.url, download.filename)
+            });
+        } else if (download.status === 'picker') {
+            for (const element of download.picker) {
+                files.push({
+                    type: element.type,
+                    format: /http:\/\/cobalt-api:9000/.test(element.url) ? 'path' : 'url',
+                    file: element.url
+                });
             }
-        } else if (ld.extension == '.mp3') {
-            message = await context.sendAudio(MediaSource.path(ld.directories[0]), { disable_notification: true });
-        } else if (ld.extension == '.gif') {
-            message = await context.sendAnimation(MediaSource.path(ld.directories[0]), { disable_notification: true });
         }
 
-        if (!!message) {
-            message.copy({ chat_id: process.env.chatlog });
+
+        for (const file of files) {
+            const mediaFile: File = file.format === 'url' ? await MediaUpload.url(file.file) : await MediaUpload.path(file.file);
+
+            if (file.type === 'video') {
+                mediaGroup.push(
+                    MediaInput.video(mediaFile)
+                );
+            } else if (file.type === 'photo') {
+                mediaGroup.push(
+                    MediaInput.photo(mediaFile)
+                );
+            } else if (file.type === 'audio') {
+                mediaGroup.push(
+                    MediaInput.audio(mediaFile)
+                );
+            } else if (file.type === 'gif') {
+                await context.sendAnimation(mediaFile);
+            }
+
+            if (!(mediaGroup.length % 10) || mediaGroup.length === files.length) {
+                await context.sendMediaGroup(mediaGroup);
+                mediaGroup = [];
+            }
         }
-    } catch (e) {
-        await context.setReaction('💔');
-        console.error(downloadUrl, e);
-        await context.send('[ERROR] Downloader error (#1003)', { chat_id: <string>process.env.chatlog });
-    } finally {
-        await localUnlink(ld.directories);
+
+
+
+    } catch (e) { console.error(e); } finally {
+        files
+            .filter(x => x.format === 'path')
+            .forEach(x => localDownload.removeFile(x.file));
     }
 };

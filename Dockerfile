@@ -1,4 +1,4 @@
-FROM node:current-alpine
+FROM node:current-alpine3.22  
 
 ENV TZ="Europe/Moscow"
 

@@ -3,13 +3,15 @@ import { downloadSend } from '../tools/download-send';
 import { searchLinks } from '../tools/search-links';
 import { sendMessage } from '../services/telegram-api';
 import { cache } from '../plugin/mediaCache';
+import { retryKeboard } from '../shared/keyboards';
+import { urlData } from '../shared/callback-data';
 
 
 export const inlineQuery = new Composer({ name: 'inlineQuery' })
     .extend(cache)
     .inlineQuery(/.*/, async context => {
         try {
-            const links = searchLinks(context.query);
+            const links = searchLinks(context.query, true);
             if (!links)
                 throw new Error;
 
@@ -58,6 +60,22 @@ export const inlineQuery = new Composer({ name: 'inlineQuery' })
                 text: `InlineQuery\n${e}\nUrl: ${context.query}`,
                 link_preview_options: { is_disabled: true }
             });
-            await context.editText('💔 Failed to download video');
+            await context.editText('💔 Failed to download video', {
+                reply_markup: retryKeboard(context.query, 1)
+            });
+        }
+    })
+
+    .callbackQuery(urlData, async context => {
+        try {
+            await downloadSend(context.queryData.url, undefined, undefined, context.inlineMessageId);
+        } catch (e) {
+            const tryCount = context.queryData.c;
+
+            await context.editText(`💔 Failed to download video${tryCount > 0 ? ` (#${tryCount + 1})` : ''}`, {
+                reply_markup: retryKeboard(context.queryData.url, tryCount + 1)
+            });
+        } finally {
+            await context.answerCallbackQuery();
         }
     });

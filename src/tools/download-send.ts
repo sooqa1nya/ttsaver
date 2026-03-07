@@ -45,6 +45,9 @@ export const downloadSend = async (link: string, chatId: string | number = proce
 
             if (file.type === 'video') {
                 if (!!inlineMessageId) {
+                    if (!mediaFile)
+                        throw new Error('FILE EMPTY' + mediaFile);
+
                     const message = await sendVideo({ business_connection_id: businessId, chat_id: chatId, video: mediaFile });
                     await editMedia({
                         inline_message_id: inlineMessageId,

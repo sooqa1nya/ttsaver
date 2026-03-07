@@ -52,7 +52,7 @@ export const handleChosenInlineQuery = async (context: ChosenInlineResultContext
     catch (e) {
         await sendMessage({
             chat_id: process.env.CHAT_LOG!,
-            text: `InlineQuery\n${e}`
+            text: `InlineQuery\n${e}\nUrl: ${context.query}`
         });
         await context.editText('💔 Failed to download video');
     }

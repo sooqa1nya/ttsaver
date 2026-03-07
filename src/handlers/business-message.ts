@@ -17,7 +17,7 @@ export const handleBusinessMessages = async (context: ContextType<Bot, 'business
         catch (e) {
             await sendMessage({
                 chat_id: process.env.CHAT_LOG!,
-                text: `Business message\n${e}`
+                text: `Business message\n${e}\nUrl: ${link}`
             });
         }
     }

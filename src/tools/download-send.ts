@@ -27,7 +27,7 @@ export const downloadSend = async (link: string, chatId: string | number = proce
             files.push({
                 type: await cobalt.getFileType(download.filename),
                 format: 'path',
-                file: await localDownload.download(download.url, download.filename)
+                file: await localDownload.download(download.url, Math.floor(Math.random() * 100000).toString() + download.filename)
             });
         } else if (download.status === 'picker') {
             for (const element of download.picker) {

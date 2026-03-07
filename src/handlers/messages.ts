@@ -17,7 +17,7 @@ export const handleMessages = async (context: MessageContext<Bot>) => {
         catch (e) {
             await sendMessage({
                 chat_id: process.env.CHAT_LOG!,
-                text: `Messages\n${e}`
+                text: `Messages\n${e}\nUrl: ${link}`
             });
             await context.setReaction('💔');
         }

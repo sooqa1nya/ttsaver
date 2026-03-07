@@ -1,6 +1,7 @@
 import { Bot, ChosenInlineResultContext, InlineKeyboard, InlineQueryContext, InlineQueryResult, InputMessageContent } from 'gramio';
 import { downloadSend } from '../tools/download-send';
 import { searchLinks } from '../tools/search-links';
+import { sendMessage } from '../services/telegram-api';
 
 
 export const handleInlineQuery = async (context: InlineQueryContext<Bot>) => {
@@ -30,7 +31,7 @@ export const handleInlineQuery = async (context: InlineQueryContext<Bot>) => {
         await context.answer(
             [
                 InlineQueryResult.article(
-                    String(new Date().getTime() + 1),
+                    String(new Date().getTime()),
                     '🔴 Please insert the link',
                     InputMessageContent.text(
                         `😔 The link is not supported or has been entered incorrectly`
@@ -49,6 +50,10 @@ export const handleChosenInlineQuery = async (context: ChosenInlineResultContext
         await downloadSend(context.query, undefined, undefined, context.inlineMessageId);
     }
     catch (e) {
+        await sendMessage({
+            chat_id: process.env.CHAT_LOG!,
+            text: `InlineQuery\n${e}`
+        });
         await context.editText('💔 Failed to download video');
     }
 };

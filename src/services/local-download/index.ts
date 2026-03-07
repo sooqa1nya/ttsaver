@@ -9,25 +9,6 @@ import { unlink } from 'node:fs';
 class LocalDownload {
     private folderPath: string = path.join(__dirname, `/temp`);
 
-    private async request<T>(url: string, options: RequestInit = {}): Promise<T> {
-        const response = await fetch(url, {
-            method: 'GET',
-            ...options,
-            headers: {
-                'Content-Type': 'application/json',
-                ...options.headers
-            }
-        });
-
-        if (!response.ok) {
-            const error = await response.text();
-            console.error('CryptoBot API error:', error);
-            throw new Error;
-        }
-
-        return await response.json();
-    }
-
     public async download(url: string, fileName: string) {
         await mkdir(this.folderPath, { recursive: true });
         const streamPipeline = promisify(pipeline);
@@ -39,7 +20,7 @@ class LocalDownload {
         });
 
         if (!response)
-            throw new Error;
+            throw new Error('Axios download');
 
         const filePath: string = this.folderPath + '/' + fileName;
         const fileStream = createWriteStream(filePath);
@@ -52,7 +33,7 @@ class LocalDownload {
     public removeFile(filePath: string) {
         unlink(filePath, err => {
             if (err)
-                throw err;
+                throw new Error('removeFile');
         });
     }
 }

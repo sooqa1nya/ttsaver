@@ -14,17 +14,17 @@ class Cobalt {
         const result: IResponseCobalt = await response.json();
 
         if (result.status === 'error') {
-            console.error('Cobalt Error: ' + JSON.stringify(result.error));
-            throw new Error;
+            console.error('Cobalt Error: ' + JSON.stringify(result.error, undefined, 2));
+            throw new Error('Cobalt: ' + JSON.stringify(result.error, undefined, 2));
         }
 
         return result;
     };
 
     private getFileExtension = async (fileName: string) => {
-        const fileExtension = fileName.match(/\.\w+/);
+        const fileExtension = fileName.match(/\.\w+$/);
         if (!fileExtension)
-            throw new Error;
+            throw new Error('getFileExtension');
 
         return fileExtension[0];
     };
@@ -47,7 +47,7 @@ class Cobalt {
             case '.png':
                 return 'photo';
             default:
-                throw new Error;
+                throw new Error('getFileType: ' + extension);
         }
     };
 }

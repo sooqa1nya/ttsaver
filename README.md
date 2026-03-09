@@ -34,5 +34,5 @@ nano .env
 
 4. Первый запуск экзепляра (выполнять в папке с ботом)
 ```bash
-docker compose build && docker compose up
+docker compose build && docker compose up -d && docker compose logs -f
 ```

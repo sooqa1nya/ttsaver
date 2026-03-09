@@ -53,6 +53,8 @@ export const messageSend = async (link: string, chatId: string | number, busines
                 await sendMediaGroup({ business_connection_id: businessId, chat_id: chatId, media });
             }
         }
+    } catch {
+        throw new Error('messageSend: sendError');
     } finally {
         files
             .forEach(x => {

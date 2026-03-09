@@ -48,13 +48,12 @@ export const inlineQuery = new Composer({ name: 'inlineQuery' })
     })
 
     .chosenInlineResult(/.*/, async context => {
-        if (!context.inlineMessageId)
-            throw new Error;
-
         try {
+            if (!context.inlineMessageId)
+                throw new Error;
+
             await inlineSend(context.query, context.inlineMessageId);
-        }
-        catch (e) {
+        } catch (e) {
             await sendMessage({
                 chat_id: process.env.CHAT_LOG!,
                 text: `InlineQuery\n${e}\nUrl: ${context.query}`,
@@ -67,10 +66,10 @@ export const inlineQuery = new Composer({ name: 'inlineQuery' })
     })
 
     .callbackQuery(urlData, async context => {
-        if (!context.inlineMessageId)
-            throw new Error;
-
         try {
+            if (!context.inlineMessageId)
+                throw new Error;
+
             await inlineSend(context.queryData.url, context.inlineMessageId);
         } catch (e) {
             const tryCount = context.queryData.c;

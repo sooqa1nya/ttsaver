@@ -1,6 +1,6 @@
 services:
   cobalt-api:
-    image: ghcr.io/imputnet/cobalt:staging
+    image: ghcr.io/imputnet/cobalt:latest
 
     init: true
     read_only: true

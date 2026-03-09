@@ -1,10 +1,10 @@
 import { Composer, InlineKeyboard, InlineQueryResult, InputMessageContent } from 'gramio';
-import { downloadSend } from '../tools/download-send';
 import { searchLinks } from '../tools/search-links';
 import { sendMessage } from '../services/telegram-api';
 import { cache } from '../plugin/mediaCache';
 import { retryKeboard } from '../shared/keyboards';
 import { urlData } from '../shared/callback-data';
+import { inlineSend } from '../tools/inline-send';
 
 
 export const inlineQuery = new Composer({ name: 'inlineQuery' })
@@ -52,7 +52,7 @@ export const inlineQuery = new Composer({ name: 'inlineQuery' })
             return;
 
         try {
-            await downloadSend(context.query, undefined, undefined, context.inlineMessageId);
+            await inlineSend(context.query, context.inlineMessageId);
         }
         catch (e) {
             await sendMessage({
@@ -67,8 +67,11 @@ export const inlineQuery = new Composer({ name: 'inlineQuery' })
     })
 
     .callbackQuery(urlData, async context => {
+        if (!context.inlineMessageId)
+            return;
+
         try {
-            await downloadSend(context.queryData.url, undefined, undefined, context.inlineMessageId);
+            await inlineSend(context.queryData.url, context.inlineMessageId);
         } catch (e) {
             const tryCount = context.queryData.c;
 

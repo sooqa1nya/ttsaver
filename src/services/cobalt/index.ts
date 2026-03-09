@@ -1,3 +1,5 @@
+import { MediaUpload } from 'gramio';
+import { localDownload } from '../local-download';
 import { IResponseCobalt } from './types';
 
 class Cobalt {
@@ -14,12 +16,46 @@ class Cobalt {
         const result: IResponseCobalt = await response.json();
 
         if (result.status === 'error') {
-            console.error('Cobalt Error: ' + JSON.stringify(result.error, undefined, 2));
             throw new Error('Cobalt: ' + JSON.stringify(result.error, undefined, 2));
         }
 
         return result;
     };
+
+    public getFiles = async (link: string) => {
+        let files: {
+            type: 'video' | 'photo' | 'gif' | 'audio';
+            url: File;
+            remove?: string;
+        }[] = [];
+
+        const download = await cobalt.download(link);
+        if (download.status === 'redirect') {
+            files.push({
+                type: await cobalt.getFileType(download.filename),
+                url: await MediaUpload.url(download.url),
+            });
+        } else if (download.status === 'tunnel') {
+            const localFile = await localDownload.download(download.url, Math.floor(Math.random() * 100000).toString() + download.filename);
+            files.push({
+                type: await cobalt.getFileType(download.filename),
+                url: await MediaUpload.path(localFile),
+            });
+        } else if (download.status === 'picker') {
+            for (const element of download.picker) {
+                const isRemove = /http:\/\/cobalt-api:9000/.test(element.url);
+                files.push({
+                    type: element.type,
+                    url: isRemove ? await MediaUpload.path(element.url) : await MediaUpload.url(element.url),
+                    ...(isRemove && { remove: element.url })
+                });
+            }
+        }
+
+        return files;
+    };
+
+
 
     private getFileExtension = async (fileName: string) => {
         const fileExtension = fileName.match(/\.\w+$/);

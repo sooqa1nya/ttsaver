@@ -3,7 +3,7 @@ import { localDownload } from '../local-download';
 import { IResponseCobalt } from './types';
 
 class Cobalt {
-    public download = async (url: string) => {
+    public download = async (url: string, count: number = 1) => {
         const response = await fetch('http://cobalt-api:9000/', {
             method: 'POST',
             headers: {
@@ -16,7 +16,10 @@ class Cobalt {
         const result: IResponseCobalt = await response.json();
 
         if (result.status === 'error') {
-            throw new Error('Cobalt: ' + JSON.stringify(result.error, undefined, 2));
+            if (result.error.code === 'error.api.fetch.fail' && count < 3) {
+                this.download(url, count + 1);
+            }
+            throw new Error(`Cobalt${count > 1 ? ' ' + count : ''}: ` + JSON.stringify(result.error, undefined, 2));
         }
 
         return result;

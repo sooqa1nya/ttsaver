@@ -17,7 +17,7 @@ class Cobalt {
         const result: IResponseCobalt = await response.json();
 
         if (result.status === 'error') {
-            if (result.error.code === 'error.api.fetch.fail' && count < 3) {
+            if ((result.error.code === 'error.api.fetch.fail' || result.error.code === 'error.api.fetch.critical') && count < 3) {
                 await scheduler.wait(1000);
                 await this.download(url, count + 1);
             }

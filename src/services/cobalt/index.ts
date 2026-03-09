@@ -1,6 +1,7 @@
 import { MediaUpload } from 'gramio';
 import { localDownload } from '../local-download';
 import { IResponseCobalt } from './types';
+import { scheduler } from 'node:timers/promises';
 
 class Cobalt {
     public download = async (url: string, count: number = 1) => {
@@ -17,6 +18,7 @@ class Cobalt {
 
         if (result.status === 'error') {
             if (result.error.code === 'error.api.fetch.fail' && count < 3) {
+                await scheduler.wait(1000);
                 await this.download(url, count + 1);
             }
             throw new Error(`Cobalt${count > 1 ? ' ' + count : ''}: ` + JSON.stringify(result.error, undefined, 2));

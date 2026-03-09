@@ -1,7 +1,6 @@
 services:
   cobalt-api:
     image: ghcr.io/imputnet/cobalt:staging
-
     init: true
     read_only: true
     restart: unless-stopped

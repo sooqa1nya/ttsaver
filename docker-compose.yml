@@ -11,7 +11,7 @@ services:
 
     environment:
       API_URL: "http://cobalt-api:9000/"
-    #COOKIE_PATH: "/cookies.json"
+      #COOKIE_PATH: "/cookies.json"
 
     labels:
       - com.centurylinklabs.watchtower.scope=cobalt

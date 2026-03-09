@@ -18,7 +18,6 @@ class Cobalt {
         if (result.status === 'error') {
             if (result.error.code === 'error.api.fetch.fail' && count < 3) {
                 this.download(url, count + 1);
-                return;
             }
             throw new Error(`Cobalt${count > 1 ? ' ' + count : ''}: ` + JSON.stringify(result.error, undefined, 2));
         }

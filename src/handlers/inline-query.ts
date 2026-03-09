@@ -49,7 +49,7 @@ export const inlineQuery = new Composer({ name: 'inlineQuery' })
 
     .chosenInlineResult(/.*/, async context => {
         if (!context.inlineMessageId)
-            return;
+            throw new Error;
 
         try {
             await inlineSend(context.query, context.inlineMessageId);
@@ -68,7 +68,7 @@ export const inlineQuery = new Composer({ name: 'inlineQuery' })
 
     .callbackQuery(urlData, async context => {
         if (!context.inlineMessageId)
-            return;
+            throw new Error;
 
         try {
             await inlineSend(context.queryData.url, context.inlineMessageId);

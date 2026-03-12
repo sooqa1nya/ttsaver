@@ -1,21 +1,25 @@
 import { Composer, Keyboard, type Bot, type MessageContext } from 'gramio';
 
 
-const handleStart = async (context: MessageContext<Bot> & { args: string | null; }) => {
-    const text = `
+export const start = new Composer()
+    .command('start', async context => {
+        if (context.args && /https:\/\//.test(context.args)) {
+            return;
+        }
+
+        const text = `
 Welcome!
 Just send me the link and I'll take care of everything 😏
 `;
 
-    await context.send(text, {
-        reply_markup: new Keyboard()
-            .text('ℹ️ Information', { style: 'primary' })
-            .text('💳 Support project', { style: 'primary' })
-    });
-};
-
-const info = async (context: MessageContext<Bot>) => {
-    const text = `
+        await context.send(text, {
+            reply_markup: new Keyboard()
+                .text('ℹ️ Information', { style: 'primary' })
+                .text('💳 Support project', { style: 'primary' })
+        });
+    })
+    .hears('ℹ️ Information', async context => {
+        const text = `
 We are not responsible for content sent by the bot. The bot only downloads and sends videos via links sent by users.
 
 Supported sites include: TikTok, YouTube Shorts, Instagram, Twitter (X), Twitch clips, Pinterest, SoundCloud, and VK video.
@@ -31,19 +35,13 @@ I also don't receive any money, so I would be very grateful for any support. You
 Support: @blue_sup
 `;
 
-    await context.send(text, { parse_mode: 'HTML' });
-};
-
-const supportAuthor = async (context: MessageContext<Bot>) => {
-    const text = `
+        await context.send(text, { parse_mode: 'HTML' });
+    })
+    .hears('💳 Support project', async context => {
+        const text = `
 💳 Support the author:
 TRC20: <code>TWZ3XCLhNB4BRLMiQ2ftj5h4raK1uXneXP</code>
 `;
 
-    await context.send(text, { parse_mode: 'HTML' });
-};
-
-export const start = new Composer()
-    .command('start', handleStart)
-    .hears('ℹ️ Information', info)
-    .hears('💳 Support project', supportAuthor);
+        await context.send(text, { parse_mode: 'HTML' });
+    });

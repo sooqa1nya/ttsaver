@@ -43,7 +43,6 @@ export const messageSend = async (link: string, chatId: string | number, busines
                 if (file.remove) {
                     localDownload.removeFile(file.remove);
                 }
-                continue;
             }
         }
 

@@ -38,5 +38,20 @@ services:
     depends_on:
       - cobalt-api
 
+  redis:
+    image: redis:8.6.1-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass redis
+    volumes:
+      - redis-data:/data
+    networks:
+      - SaverAndCobalt
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+
 networks:
   SaverAndCobalt:

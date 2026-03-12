@@ -59,7 +59,7 @@ export const inlineQuery = new Composer({ name: 'inlineQuery' })
                 text: `InlineQuery\n${e}\nUrl: ${context.query}`,
                 link_preview_options: { is_disabled: true }
             });
-            await context.editText('💔 Failed to download video', {
+            await context.editText('💔 Failed to download media', {
                 reply_markup: retryKeboard(context.query, 1)
             });
         }
@@ -74,7 +74,7 @@ export const inlineQuery = new Composer({ name: 'inlineQuery' })
         } catch (e) {
             const tryCount = context.queryData.c;
 
-            await context.editText(`💔 Failed to download video${tryCount > 0 ? ` (#${tryCount + 1})` : ''}`, {
+            await context.editText(`💔 Failed to download media${tryCount > 0 ? ` (#${tryCount + 1})` : ''}`, {
                 reply_markup: retryKeboard(context.queryData.url, tryCount + 1)
             });
         } finally {

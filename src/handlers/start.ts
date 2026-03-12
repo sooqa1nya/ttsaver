@@ -1,9 +1,28 @@
 import { Composer, Keyboard, type Bot, type MessageContext } from 'gramio';
+import { redis } from '../services/redis';
+import { searchLinks } from '../tools/search-links';
+import { messageSend } from '../tools/message-send';
+import { sendMessage } from '../services/telegram-api';
 
 
 export const start = new Composer()
     .command('start', async context => {
-        if (context.args && /https:\/\//.test(context.args)) {
+        if (context.args && /\w+/.test(context.args)) {
+            const link = await redis.get(context.args);
+            if (!link) {
+                return await context.send(`😔 The link was not found\nJust send me the link and I'll take care of everything 😏`);
+            }
+
+            try { await messageSend(link, context.chat.id); }
+            catch (e) {
+                await sendMessage({
+                    chat_id: process.env.CHAT_LOG!,
+                    text: `Start message\n${e}\nUrl: ${link}`,
+                    link_preview_options: { is_disabled: true }
+                });
+                await context.send('🚫 Media files could not be downloaded. Try sending the link to the bot.');
+            }
+
             return;
         }
 

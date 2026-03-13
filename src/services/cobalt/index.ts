@@ -2,6 +2,7 @@ import { MediaUpload } from 'gramio';
 import { localDownload } from '../local-download';
 import { IResponseCobalt } from './types';
 import { scheduler } from 'node:timers/promises';
+import { IFile } from '../../types/files';
 
 class Cobalt {
     public download = async (url: string, count: number = 1) => {
@@ -17,8 +18,8 @@ class Cobalt {
         const result: IResponseCobalt = await response.json();
 
         if (result.status === 'error') {
-            if (count < 3) {
-                await scheduler.wait(3500);
+            if (count < 2) {
+                await scheduler.wait(1500);
                 await this.download(url, count + 1);
             }
             throw new Error(`Cobalt${count > 1 ? ' ' + count : ''}: ` + JSON.stringify(result.error, undefined, 2));
@@ -28,22 +29,18 @@ class Cobalt {
     };
 
     public getFiles = async (link: string) => {
-        let files: {
-            type: 'video' | 'photo' | 'gif' | 'audio';
-            url: File;
-            remove?: string;
-        }[] = [];
+        let files: IFile[] = [];
 
-        const download = await cobalt.download(link);
+        const download = await this.download(link);
         if (download.status === 'redirect') {
             files.push({
-                type: await cobalt.getFileType(download.filename),
+                type: await this.getFileType(download.filename),
                 url: await MediaUpload.url(download.url),
             });
         } else if (download.status === 'tunnel') {
             const localFile = await localDownload.download(download.url, Math.floor(Math.random() * 100000).toString() + download.filename);
             files.push({
-                type: await cobalt.getFileType(download.filename),
+                type: await this.getFileType(download.filename),
                 url: await MediaUpload.path(localFile),
             });
         } else if (download.status === 'picker') {

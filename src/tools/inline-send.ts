@@ -2,14 +2,16 @@ import { cobalt } from '../services/cobalt';
 import { localDownload } from '../services/local-download';
 import { redis } from '../services/redis';
 import { editMedia, sendAnimation, sendAudio, sendPhoto, sendVideo } from '../services/telegram-api';
+import { tikwm } from '../services/tikwm';
 import { showMoreKeyboard } from '../shared/keyboards';
+import { IFile } from '../types/files';
 import { payloadGenerate } from './ref-generate';
 
 
 export const inlineSend = async (link: string, inlineMessageId: string) => {
     const chatId: string = process.env.CHAT_LOG!;
 
-    const files = await cobalt.getFiles(link);
+    const files: IFile[] = await cobalt.getFiles(link).catch(async () => await tikwm.getFiles(link));
     const file = files[0];
     const payload = payloadGenerate();
 

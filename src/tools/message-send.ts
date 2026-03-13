@@ -3,10 +3,12 @@ import { cobalt } from '../services/cobalt';
 import { localDownload } from '../services/local-download';
 import { sendAnimation, sendAudio, sendMediaGroup, sendPhoto, sendVideo } from '../services/telegram-api';
 import { chunk } from './chunk';
+import { tikwm } from '../services/tikwm';
+import { IFile } from '../types/files';
 
 
 export const messageSend = async (link: string, chatId: string | number, businessId: string | undefined = undefined,) => {
-    const files = await cobalt.getFiles(link);
+    const files: IFile[] = await cobalt.getFiles(link).catch(async () => await tikwm.getFiles(link));
 
     try {
         let mediaGroup: TelegramParams.SendMediaGroupParams['media'] = [];

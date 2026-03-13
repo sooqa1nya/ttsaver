@@ -8,9 +8,11 @@ class Tikwm {
             { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
         );
 
-        if (!response) {
+        if (!response || !response.data.data) {
             throw new Error('tikWM: response');
         }
+
+        console.log(response.data || !response.data.data);
 
         return response.data.data;
     }

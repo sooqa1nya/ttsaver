@@ -11,7 +11,14 @@ import { payloadGenerate } from './ref-generate';
 export const inlineSend = async (link: string, inlineMessageId: string) => {
     const chatId: string = process.env.CHAT_LOG!;
 
-    const files: IFile[] = await cobalt.getFiles(link).catch(async () => await tikwm.getFiles(link));
+    const files: IFile[] = await cobalt.getFiles(link)
+        .catch(async error => {
+            if (/tiktok/.test(link)) {
+                return await tikwm.getFiles(link);
+            } else {
+                throw new Error(error);
+            }
+        });
     const file = files[0];
     const payload = payloadGenerate();
 

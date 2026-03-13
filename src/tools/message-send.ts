@@ -8,7 +8,14 @@ import { IFile } from '../types/files';
 
 
 export const messageSend = async (link: string, chatId: string | number, businessId: string | undefined = undefined,) => {
-    const files: IFile[] = await cobalt.getFiles(link).catch(async () => await tikwm.getFiles(link));
+    const files: IFile[] = await cobalt.getFiles(link)
+        .catch(async error => {
+            if (/tiktok/.test(link)) {
+                return await tikwm.getFiles(link);
+            } else {
+                throw new Error(error);
+            }
+        });
 
     try {
         let mediaGroup: TelegramParams.SendMediaGroupParams['media'] = [];

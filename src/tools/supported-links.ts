@@ -2,7 +2,7 @@ const base: RegExp[] = [
     /(https?:\/\/)?(?:m|www|vm|vt)\.tiktok\.com\/[\S]+/,
     /(https?:\/\/)?(www\.)?youtu(be)?\.(be|com)\/[\S]+/,
     /(https?:\/\/)?(dd)?(?:m|www|vm|vt)\.instagram\.com\/(reel|p)\/([\S]+)/,
-    /(https?:\/\/)?vk\.com\/([\S]+)/,
+    /(https?:\/\/)?vk\.(com|ru)\/([\S]+)/,
     /(https?:\/\/)?(?:on\.)?soundcloud\.com\/([\S]+)/,
     /(https?:\/\/)?pin\.it\/([\S]+)/,
     /(https?:\/\/)?x\.com\/([\S]+)/,

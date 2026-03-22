@@ -16,6 +16,7 @@ export const messageSend = async (link: string, chatId: string | number, busines
                 throw new Error(error);
             }
         });
+    if (!files.length) throw new Error('sendMessage: Empty Files');
 
     try {
         let mediaGroup: TelegramParams.SendMediaGroupParams['media'] = [];
@@ -64,11 +65,10 @@ export const messageSend = async (link: string, chatId: string | number, busines
     } catch {
         throw new Error('messageSend: sendError');
     } finally {
-        files
-            .forEach(x => {
-                if (x.remove) {
-                    localDownload.removeFile(x.remove);
-                }
-            });
+        files.forEach(x => {
+            if (x.remove) {
+                localDownload.removeFile(x.remove);
+            }
+        });
     }
 };

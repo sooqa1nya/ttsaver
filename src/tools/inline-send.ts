@@ -19,6 +19,8 @@ export const inlineSend = async (link: string, inlineMessageId: string) => {
                 throw new Error(error);
             }
         });
+
+    if (!files.length) throw new Error('inlineQuery: Empty Files');
     const file = files[0];
     const payload = payloadGenerate();
 
@@ -72,8 +74,10 @@ export const inlineSend = async (link: string, inlineMessageId: string) => {
     } catch {
         throw new Error('inlineSend: sendError');
     } finally {
-        if (file.remove) {
-            localDownload.removeFile(file.remove);
-        }
+        files.forEach(x => {
+            if (x.remove) {
+                localDownload.removeFile(x.remove);
+            }
+        });
     }
 };

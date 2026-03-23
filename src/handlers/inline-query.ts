@@ -24,6 +24,7 @@ export const inlineQuery = new Composer({ name: 'inlineQuery' })
                             `⏳ Media download, expect...`
                         ),
                         {
+                            thumbnail_url: 'https://static.vecteezy.com/system/resources/previews/019/465/852/non_2x/tick-mark-icon-symbol-on-transparent-background-free-png.png',
                             reply_markup: new InlineKeyboard().url(
                                 "💙 TikiToki Saver",
                                 "https://t.me/bluesaverbot"
@@ -41,6 +42,9 @@ export const inlineQuery = new Composer({ name: 'inlineQuery' })
                         InputMessageContent.text(
                             `😔 The link is not supported or has been entered incorrectly`
                         ),
+                        {
+                            thumbnail_url: 'https://static.vecteezy.com/system/resources/thumbnails/017/178/563/small/cross-check-icon-symbol-on-transparent-background-free-png.png'
+                        }
                     )
                 ]
             );

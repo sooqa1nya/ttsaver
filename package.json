@@ -20,13 +20,13 @@
   "homepage": "https://github.com/sooqa1nya/ttsaver#readme",
   "dependencies": {
     "@gramio/media-cache": "^0.0.4",
-    "axios": "^1.13.6",
+    "axios": "^1.14.0",
     "dotenv": "^17.3.1",
-    "gramio": "^0.7.0",
+    "gramio": "^0.8.1",
     "redis": "^5.11.0",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.2"
   },
   "devDependencies": {
-    "@types/node": "^25.3.5"
+    "@types/node": "^25.5.0"
   }
 }

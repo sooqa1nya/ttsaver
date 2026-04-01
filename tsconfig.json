@@ -15,7 +15,8 @@
     "resolveJsonModule": true
   },
   "include": [
-    "src"
+    "src",
+    "src/bot.ts"
   ],
   "exclude": [
     "node_modules",

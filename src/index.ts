@@ -1,18 +1,27 @@
 import 'dotenv/config';
-import { Bot } from 'gramio';
-import { start } from './handlers/start';
-import { messages } from './handlers/messages';
-import { inlineQuery } from './handlers/inline-query';
-import { businessMessages } from './handlers/business-message';
-import { cache } from './plugin/mediaCache';
+import { bot } from './bot.js';
 
 
-export const bot = new Bot(process.env.BOT_TOKEN!)
-    .extend(cache)
-    .extend(start)
-    .extend(messages)
-    .extend(inlineQuery)
-    .extend(businessMessages)
-    .onStart(() => console.log(`🤖 Бот запущен`));
+const botStart = async () => {
+    const signals = ["SIGINT", "SIGTERM"];
 
-bot.start();
+    for (const signal of signals) {
+        process.on(signal, async () => {
+            console.log(`Received ${signal}. Initiating graceful shutdown...`);
+            await bot.stop();
+            process.exit(0);
+        });
+    }
+
+    process.on("uncaughtException", (error) => {
+        console.error("Uncaught exception:", error);
+    });
+
+    process.on("unhandledRejection", (error) => {
+        console.error("Unhandled rejection:", error);
+    });
+
+    await bot.start();
+};
+
+botStart();

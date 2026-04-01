@@ -1,5 +1,5 @@
 import { EditMessageMediaParams, SendAnimationParams, SendAudioParams, SendMediaGroupParams, SendMessageParams, SendPhotoParams, SendVideoParams } from 'gramio';
-import { bot } from '../..';
+import { bot } from '../../bot';
 
 export const sendMessage = async (params: SendMessageParams) => {
     return await bot.api.sendMessage(params);

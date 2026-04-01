@@ -2,10 +2,9 @@ import { Composer } from 'gramio';
 import { searchLinks } from '../tools/search-links';
 import { sendMessage } from '../services/telegram-api';
 import { messageSend } from '../tools/message-send';
-import { cache } from '../plugin/mediaCache';
+
 
 export const businessMessages = new Composer({ name: 'businessMessages' })
-    .extend(cache)
     .on("business_message", async context => {
         if (!context.hasText() || !context.hasFrom() || context.hasViaBot())
             return;

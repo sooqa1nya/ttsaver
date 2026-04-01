@@ -1,14 +1,12 @@
 import { Composer, InlineKeyboard, InlineQueryResult, InputMessageContent } from 'gramio';
 import { searchLinks } from '../tools/search-links';
 import { sendMessage } from '../services/telegram-api';
-import { cache } from '../plugin/mediaCache';
 import { retryKeboard } from '../shared/keyboards';
 import { urlData } from '../shared/callback-data';
 import { inlineSend } from '../tools/inline-send';
 
 
 export const inlineQuery = new Composer({ name: 'inlineQuery' })
-    .extend(cache)
     .inlineQuery(/.*/, async context => {
         try {
             const links = searchLinks(context.query, true);

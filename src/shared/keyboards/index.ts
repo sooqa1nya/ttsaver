@@ -2,9 +2,9 @@ import { InlineKeyboard } from 'gramio';
 import { urlData } from '../callback-data';
 
 
-export const retryKeboard = (url: string, tryCount: number) => {
+export const retryKeboard = (urlHash: string, tryCount: number) => {
     return new InlineKeyboard()
-        .addIf(tryCount < 3, InlineKeyboard.text('🔄 Retry', urlData.pack({ url, c: tryCount })));
+        .addIf(tryCount < 3, InlineKeyboard.text('🔄 Retry', urlData.pack({ hash: urlHash, c: tryCount })));
 };
 
 export const showMoreKeyboard = (url: string) => {

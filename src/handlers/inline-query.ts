@@ -4,6 +4,8 @@ import { sendMessage } from '../services/telegram-api';
 import { retryKeboard } from '../shared/keyboards';
 import { urlData } from '../shared/callback-data';
 import { inlineSend } from '../tools/inline-send';
+import { payloadGenerate } from '../tools/ref-generate';
+import { redis } from '../services/redis';
 
 
 export const inlineQuery = new Composer({ name: 'inlineQuery' })
@@ -61,8 +63,11 @@ export const inlineQuery = new Composer({ name: 'inlineQuery' })
                 text: `InlineQuery\n${e}\nUrl: ${context.query}`,
                 link_preview_options: { is_disabled: true }
             });
+
+            const payload = payloadGenerate();
+            await redis.set(payload, context.query);
             await context.editText('💔 Failed to download media', {
-                reply_markup: retryKeboard(context.query, 1)
+                reply_markup: retryKeboard(payload, 1)
             });
         }
     })
@@ -72,12 +77,16 @@ export const inlineQuery = new Composer({ name: 'inlineQuery' })
             if (!context.inlineMessageId)
                 throw new Error;
 
-            await inlineSend(context.queryData.url, context.inlineMessageId);
+            const url = await redis.get(context.queryData.hash);
+            if (!url)
+                throw new Error('[InlineQuery] Url not found');
+
+            await inlineSend(url, context.inlineMessageId);
         } catch (e) {
             const tryCount = context.queryData.c;
 
             await context.editText(`💔 Failed to download media${tryCount > 0 ? ` (#${tryCount + 1})` : ''}`, {
-                reply_markup: retryKeboard(context.queryData.url, tryCount + 1)
+                reply_markup: retryKeboard(context.queryData.hash, tryCount + 1)
             });
         } finally {
             await context.answerCallbackQuery();

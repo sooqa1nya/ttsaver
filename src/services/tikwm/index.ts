@@ -12,8 +12,6 @@ class Tikwm {
             throw new Error('tikWM: response');
         }
 
-        console.log(response.data || !response.data.data);
-
         return response.data.data;
     }
 

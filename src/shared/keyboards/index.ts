@@ -11,3 +11,10 @@ export const showMoreKeyboard = (url: string) => {
     return new InlineKeyboard()
         .url('👀 Show more', `https://t.me/bluesaverbot?start=${url}`);
 };
+
+export const infoBMKeyboard = (text: string) => {
+    return new InlineKeyboard()
+        .text(text, 'emptyButton');
+};
+
+export const emptyKeyboard = new InlineKeyboard();

@@ -9,7 +9,9 @@ class Tikwm {
         );
 
         if (!response || !response.data.data) {
-            throw new Error('tikWM: response');
+            const errorMsg = '[TikWM] API response is empty or invalid for URL: ' + url;
+            console.error(errorMsg);
+            throw new Error(errorMsg);
         }
 
         return response.data.data;

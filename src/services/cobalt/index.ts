@@ -5,7 +5,7 @@ import { scheduler } from 'node:timers/promises';
 import { IFile } from '../../types/files';
 
 class Cobalt {
-    public download = async (url: string, count: number = 1) => {
+    public download = async (url: string) => {
         const response = await fetch('http://cobalt-api:9000/', {
             method: 'POST',
             headers: {
@@ -18,11 +18,9 @@ class Cobalt {
         const result: IResponseCobalt = await response.json();
 
         if (result.status === 'error') {
-            if (count < 2) {
-                await scheduler.wait(1500);
-                await this.download(url, count + 1);
-            }
-            throw new Error(`Cobalt${count > 1 ? ' ' + count : ''}: ` + JSON.stringify(result.error, undefined, 2));
+            const errorMsg = `[Cobalt] API error: ${JSON.stringify(result.error, undefined, 2)}`;
+            console.error(errorMsg, 'URL:', url);
+            throw new Error(errorMsg);
         }
 
         return result;
@@ -61,8 +59,11 @@ class Cobalt {
 
     private getFileExtension = async (fileName: string) => {
         const fileExtension = fileName.match(/\.\w+$/);
-        if (!fileExtension)
-            throw new Error('getFileExtension');
+        if (!fileExtension) {
+            const errorMsg = '[Cobalt] Unable to extract file extension from: ' + fileName;
+            console.error(errorMsg);
+            throw new Error(errorMsg);
+        }
 
         return fileExtension[0];
     };
@@ -85,7 +86,9 @@ class Cobalt {
             case '.png':
                 return 'photo';
             default:
-                throw new Error('getFileType: ' + extension);
+                const errorMsg = '[Cobalt] Unknown file extension: ' + extension + ' for file: ' + fileName;
+                console.error(errorMsg);
+                throw new Error(errorMsg);
         }
     };
 }

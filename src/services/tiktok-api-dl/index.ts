@@ -11,7 +11,9 @@ class TikTokApiDl {
         });
 
         if (download.status === 'error') {
-            throw new Error('tt-api-dl getFilesV1: status error');
+            const errorMsg = '[TikTokApiDl] getFilesV1 - API returned error status';
+            console.error(errorMsg, 'Link:', link);
+            throw new Error(errorMsg);
         }
 
         if (download.result?.images) {
@@ -27,7 +29,9 @@ class TikTokApiDl {
                 url: download.result.video.downloadAddr[0]
             });
         } else {
-            throw new Error('tt-api-dl getFilesV1: files error');
+            const errorMsg = '[TikTokApiDl] getFilesV1 - No valid media found in API response';
+            console.error(errorMsg, 'Link:', link, 'Response:', download.result);
+            throw new Error(errorMsg);
         }
 
         return files;
@@ -41,7 +45,9 @@ class TikTokApiDl {
         });
 
         if (download.status === 'error') {
-            throw new Error('tt-api-dl getFilesV2: status error');
+            const errorMsg = '[TikTokApiDl] getFilesV2 - API returned error status';
+            console.error(errorMsg, 'Link:', link);
+            throw new Error(errorMsg);
         }
 
         if (download.result?.images) {
@@ -57,7 +63,9 @@ class TikTokApiDl {
                 url: download.result.video
             });
         } else {
-            throw new Error('tt-api-dl getFilesV2: files error');
+            const errorMsg = '[TikTokApiDl] getFilesV2 - No valid media found in API response';
+            console.error(errorMsg, 'Link:', link, 'Response:', download.result);
+            throw new Error(errorMsg);
         }
 
         return files;
@@ -71,9 +79,10 @@ class TikTokApiDl {
         });
 
         if (download.status === 'error') {
-            throw new Error('tt-api-dl getFilesV3: status error');
+            const errorMsg = '[TikTokApiDl] getFilesV3 - API returned error status';
+            console.error(errorMsg, 'Link:', link);
+            throw new Error(errorMsg);
         }
-        console.log(download.result);
         if (download.result?.images) {
             for (const element of download.result.images) {
                 files.push({
@@ -97,7 +106,9 @@ class TikTokApiDl {
                 url: download.result.video2
             });
         } else {
-            throw new Error('tt-api-dl getFilesV3: files error');
+            const errorMsg = '[TikTokApiDl] getFilesV3 - No valid media found in API response';
+            console.error(errorMsg, 'Link:', link, 'Response:', download.result);
+            throw new Error(errorMsg);
         }
 
         return files;

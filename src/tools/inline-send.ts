@@ -1,7 +1,7 @@
 import { cobalt } from '../services/cobalt';
 import { localDownload } from '../services/local-download';
 import { redis } from '../services/redis';
-import { editMedia, sendAnimation, sendAudio, sendPhoto, sendVideo } from '../services/telegram-api';
+import { editMedia, sendAnimation, sendAudio, sendPhoto, sendVideo, sendMessage } from '../services/telegram-api';
 import { ttApiDl } from '../services/tiktok-api-dl';
 import { showMoreKeyboard } from '../shared/keyboards';
 import { IFile } from '../types/files';
@@ -18,11 +18,22 @@ export const inlineSend = async (link: string, inlineMessageId: string) => {
                     return await ttApiDl.getFilesV3(link);
                 });
             } else {
-                throw new Error(error);
+                const errorMsg = '[InlineSend] Cobalt failed and URL is not TikTok: ' + String(error);
+                console.error(errorMsg);
+                throw new Error(errorMsg);
             }
         });
 
-    if (!files.length) throw new Error('inlineQuery: Empty Files');
+    if (!files.length) {
+        const errorMsg = '[InlineSend] No media files retrieved from any service for URL: ' + link;
+        console.error(errorMsg);
+        await sendMessage({
+            chat_id: process.env.CHAT_LOG!,
+            text: `🔴 InlineSend Error\n${errorMsg}`,
+            link_preview_options: { is_disabled: true }
+        });
+        throw new Error(errorMsg);
+    }
     const file = files[0];
     const payload = payloadGenerate();
 
@@ -73,8 +84,15 @@ export const inlineSend = async (link: string, inlineMessageId: string) => {
             await redis.set(payload, link);
         }
 
-    } catch {
-        throw new Error('inlineSend: sendError');
+    } catch (error) {
+        const errorMsg = '[InlineSend] Failed to edit/send media - ' + String(error);
+        console.error(errorMsg);
+        await sendMessage({
+            chat_id: process.env.CHAT_LOG!,
+            text: `🔴 InlineSend Media Send Error\n${errorMsg}\nLink: ${link}`,
+            link_preview_options: { is_disabled: true }
+        });
+        throw new Error(errorMsg);
     } finally {
         files.forEach(x => {
             if (x.remove) {

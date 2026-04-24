@@ -15,9 +15,11 @@ export const start = new Composer()
 
             try { await messageSend(link, context.chat.id); }
             catch (e) {
+                const errorMsg = `[StartCommand] Media send error - ${String(e)}`;
+                console.error(errorMsg, 'Link:', link);
                 await sendMessage({
                     chat_id: process.env.CHAT_LOG!,
-                    text: `Start message\n${e}\nUrl: ${link}`,
+                    text: `🔴 Start message\n${errorMsg}\nUrl: ${link}`,
                     link_preview_options: { is_disabled: true }
                 });
                 await context.send('🚫 Media files could not be downloaded. Try sending the link to the bot.');

@@ -15,10 +15,16 @@ export const messageSend = async (link: string, chatId: string | number, busines
                     return await ttApiDl.getFilesV3(link);
                 });
             } else {
-                throw new Error(error);
+                const errorMsg = '[MessageSend] Cobalt failed and URL is not TikTok: ' + String(error);
+                console.error(errorMsg);
+                throw new Error(errorMsg);
             }
         });
-    if (!files.length) throw new Error('sendMessage: Empty Files');
+    if (!files.length) {
+        const errorMsg = '[MessageSend] No media files retrieved from any service for URL: ' + link;
+        console.error(errorMsg);
+        throw new Error(errorMsg);
+    }
 
     try {
         let mediaGroup: TelegramParams.SendMediaGroupParams['media'] = [];
@@ -65,8 +71,9 @@ export const messageSend = async (link: string, chatId: string | number, busines
             }
         }
     } catch (error) {
-        console.error(error);
-        throw new Error('messageSend: sendError');
+        const errorMsg = '[MessageSend] Failed to send media - ' + String(error);
+        console.error(errorMsg);
+        throw new Error(errorMsg);
     } finally {
         files.forEach(x => {
             if (x.remove) {

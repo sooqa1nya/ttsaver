@@ -12,8 +12,11 @@ export const inlineQuery = new Composer({ name: 'inlineQuery' })
     .inlineQuery(/.*/, async context => {
         try {
             const links = searchLinks(context.query, true);
-            if (!links)
-                throw new Error;
+            if (!links) {
+                const error = '[InlineQuery Handler] No links found for search query: ' + context.query;
+                console.error(error);
+                throw new Error(error);
+            }
 
             await context.answer(
                 [
@@ -53,14 +56,19 @@ export const inlineQuery = new Composer({ name: 'inlineQuery' })
 
     .chosenInlineResult(/.*/, async context => {
         try {
-            if (!context.inlineMessageId)
-                throw new Error;
+            if (!context.inlineMessageId) {
+                const error = '[ChosenInlineResult] Missing inlineMessageId for query: ' + context.query;
+                console.error(error);
+                throw new Error(error);
+            }
 
             await inlineSend(context.query, context.inlineMessageId);
         } catch (e) {
+            const errorMsg = `[ChosenInlineResult] Error: ${String(e)}\nUrl: ${context.query}`;
+            console.error(errorMsg);
             await sendMessage({
                 chat_id: process.env.CHAT_LOG!,
-                text: `InlineQuery\n${e}\nUrl: ${context.query}`,
+                text: `🔴 ChosenInlineResult Error\n${errorMsg}`,
                 link_preview_options: { is_disabled: true }
             });
 
@@ -74,16 +82,24 @@ export const inlineQuery = new Composer({ name: 'inlineQuery' })
 
     .callbackQuery(urlData, async context => {
         try {
-            if (!context.inlineMessageId)
-                throw new Error;
+            if (!context.inlineMessageId) {
+                const error = '[CallbackQuery] Missing inlineMessageId for hash: ' + context.queryData.hash;
+                console.error(error);
+                throw new Error(error);
+            }
 
             const url = await redis.get(context.queryData.hash);
-            if (!url)
-                throw new Error('[InlineQuery] Url not found');
+            if (!url) {
+                const error = '[CallbackQuery] Redis - URL not found for hash: ' + context.queryData.hash;
+                console.error(error);
+                throw new Error(error);
+            }
 
             await inlineSend(url, context.inlineMessageId);
         } catch (e) {
             const tryCount = context.queryData.c;
+            const errorMsg = `[CallbackQuery] Error on retry #${tryCount}: ${String(e)}`;
+            console.error(errorMsg);
 
             await context.editText(`💔 Failed to download media${tryCount > 0 ? ` (#${tryCount + 1})` : ''}`, {
                 reply_markup: retryKeboard(context.queryData.hash, tryCount + 1)

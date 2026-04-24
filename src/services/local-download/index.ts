@@ -19,8 +19,11 @@ class LocalDownload {
             responseType: 'stream'
         });
 
-        if (!response)
-            throw new Error('Axios download');
+        if (!response) {
+            const errorMsg = '[LocalDownload] Axios download - No response from server for URL: ' + url;
+            console.error(errorMsg);
+            throw new Error(errorMsg);
+        }
 
         const filePath: string = this.folderPath + '/' + fileName;
         const fileStream = createWriteStream(filePath);
@@ -32,8 +35,11 @@ class LocalDownload {
 
     public removeFile(filePath: string) {
         unlink(filePath, err => {
-            if (err)
-                throw new Error('removeFile');
+            if (err) {
+                const errorMsg = '[LocalDownload] Failed to remove file: ' + filePath + ' - ' + String(err);
+                console.error(errorMsg);
+                throw new Error(errorMsg);
+            }
         });
     }
 }

@@ -16,9 +16,11 @@ export const messages = new Composer({ name: 'messages' })
         for (const link of links) {
             try { await messageSend(link, context.chat.id); }
             catch (e) {
+                const errorMsg = `[Messages] Media send error - ${String(e)}`;
+                console.error(errorMsg, 'Link:', link);
                 await sendMessage({
                     chat_id: process.env.CHAT_LOG!,
-                    text: `Messages\n${e}\nUrl: ${link}`,
+                    text: `🔴 Messages\n${errorMsg}\nUrl: ${link}`,
                     link_preview_options: { is_disabled: true }
                 });
                 await context.setReaction('💔');

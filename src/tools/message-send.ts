@@ -3,21 +3,19 @@ import { cobalt } from '../services/cobalt';
 import { localDownload } from '../services/local-download';
 import { sendAnimation, sendAudio, sendMediaGroup, sendPhoto, sendVideo } from '../services/telegram-api';
 import { chunk } from './chunk';
-import { tikwm } from '../services/tikwm';
 import { IFile } from '../types/files';
 import { ttApiDl } from '../services/tiktok-api-dl';
 
 
 export const messageSend = async (link: string, chatId: string | number, businessId: string | undefined = undefined,) => {
-    // const files: IFile[] = await cobalt.getFiles(link)
-    //     .catch(async error => {
-    //         if (/tiktok/.test(link)) {
-    //             return await ttApiDl.getFiles(link);
-    //         } else {
-    //             throw new Error(error);
-    //         }
-    //     });
-    const files: IFile[] = await ttApiDl.getFiles(link);
+    const files: IFile[] = await cobalt.getFiles(link)
+        .catch(async error => {
+            if (/tiktok/.test(link)) {
+                return await ttApiDl.getFiles(link);
+            } else {
+                throw new Error(error);
+            }
+        });
     if (!files.length) throw new Error('sendMessage: Empty Files');
 
     try {

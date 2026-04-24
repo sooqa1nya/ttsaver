@@ -1,5 +1,5 @@
 export interface IFile {
     type: 'video' | 'photo' | 'gif' | 'audio';
-    url: File;
+    url: string | File;
     remove?: string;
 }

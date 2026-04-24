@@ -18,7 +18,15 @@ export const businessMessages = new Composer({ name: 'businessMessages' })
         for (const link of links) {
             try {
                 await messageSend(link, context.chat.id, context.businessConnectionId);
-                if (context.chat.id != context.from.id) await context.editReplyMarkup(emptyKeyboard);
+                try {
+                    if (context.chat.id != context.from.id) await context.editReplyMarkup(emptyKeyboard);
+                } catch (e) {
+                    await sendMessage({
+                        chat_id: process.env.CHAT_LOG!,
+                        text: `Business message | REMOVE BUTTON\n${e}\nUrl: ${link}`,
+                        link_preview_options: { is_disabled: true }
+                    });
+                }
             }
             catch (e) {
                 await sendMessage({
@@ -26,7 +34,15 @@ export const businessMessages = new Composer({ name: 'businessMessages' })
                     text: `Business message\n${e}\nUrl: ${link}`,
                     link_preview_options: { is_disabled: true }
                 });
-                if (context.chat.id != context.from.id) await context.editReplyMarkup(infoBMKeyboard('😔 Download error'));
+                try {
+                    if (context.chat.id != context.from.id) await context.editReplyMarkup(infoBMKeyboard('😔 Download error'));
+                } catch (e) {
+                    await sendMessage({
+                        chat_id: process.env.CHAT_LOG!,
+                        text: `Business message | ADD ERROR BUTTON\n${e}\nUrl: ${link}`,
+                        link_preview_options: { is_disabled: true }
+                    });
+                }
             }
         }
     });

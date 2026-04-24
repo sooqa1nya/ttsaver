@@ -9,7 +9,6 @@ import { autoRetry } from '@gramio/auto-retry';
 
 
 export const bot = new Bot(process.env.BOT_TOKEN!)
-    .extend(autoRetry())
     .extend(cache)
     .extend(start)
     .extend(messages)

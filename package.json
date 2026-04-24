@@ -19,7 +19,6 @@
   },
   "homepage": "https://github.com/sooqa1nya/ttsaver#readme",
   "dependencies": {
-    "@gramio/auto-retry": "^0.0.3",
     "@gramio/media-cache": "^0.0.4",
     "axios": "^1.15.0",
     "dotenv": "^17.4.2",

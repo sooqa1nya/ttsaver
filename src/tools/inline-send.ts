@@ -2,7 +2,7 @@ import { cobalt } from '../services/cobalt';
 import { localDownload } from '../services/local-download';
 import { redis } from '../services/redis';
 import { editMedia, sendAnimation, sendAudio, sendPhoto, sendVideo } from '../services/telegram-api';
-import { tikwm } from '../services/tikwm';
+import { ttApiDl } from '../services/tiktok-api-dl';
 import { showMoreKeyboard } from '../shared/keyboards';
 import { IFile } from '../types/files';
 import { payloadGenerate } from './ref-generate';
@@ -14,7 +14,9 @@ export const inlineSend = async (link: string, inlineMessageId: string) => {
     const files: IFile[] = await cobalt.getFiles(link)
         .catch(async error => {
             if (/tiktok/.test(link)) {
-                return await tikwm.getFiles(link);
+                return await ttApiDl.getFilesV1(link).catch(async () => {
+                    return await ttApiDl.getFilesV3(link);
+                });
             } else {
                 throw new Error(error);
             }

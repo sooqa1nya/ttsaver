@@ -12,9 +12,7 @@ export const messageSend = async (link: string, chatId: string | number, busines
         .catch(async error => {
             if (/tiktok/.test(link)) {
                 return await ttApiDl.getFilesV1(link).catch(async () => {
-                    return await ttApiDl.getFilesV2(link).catch(async () => {
-                        return await ttApiDl.getFilesV3(link);
-                    });
+                    return await ttApiDl.getFilesV3(link);
                 });
             } else {
                 throw new Error(error);

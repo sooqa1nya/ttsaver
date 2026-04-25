@@ -14,4 +14,4 @@ export const supportedLinks = (): RegExp[] =>
     base.map(r => new RegExp(r.source, 'g'));
 
 export const supportedLinksInline = (): RegExp[] =>
-    base.map(r => new RegExp(`^${r.source}$`));
+    base;

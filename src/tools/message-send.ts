@@ -5,6 +5,7 @@ import { sendAnimation, sendAudio, sendMediaGroup, sendPhoto, sendVideo } from '
 import { chunk } from './chunk';
 import { IFile } from '../types/files';
 import { ttApiDl } from '../services/tiktok-api-dl';
+import { tikwm } from '../services/tikwm';
 
 
 export const messageSend = async (link: string, chatId: string | number, businessId: string | undefined = undefined,) => {
@@ -12,7 +13,11 @@ export const messageSend = async (link: string, chatId: string | number, busines
         .catch(async error => {
             if (/tiktok/.test(link)) {
                 return await ttApiDl.getFilesV1(link).catch(async () => {
-                    return await ttApiDl.getFilesV3(link);
+                    return await ttApiDl.getFilesV3(link).catch(async () => {
+                        return await tikwm.getFiles(link).catch(async () => {
+                            return await ttApiDl.getFilesV2(link);
+                        });
+                    });
                 });
             } else {
                 const errorMsg = '[MessageSend] Cobalt failed and URL is not TikTok: ' + String(error);
@@ -20,6 +25,7 @@ export const messageSend = async (link: string, chatId: string | number, busines
                 throw new Error(errorMsg);
             }
         });
+
     if (!files.length) {
         const errorMsg = '[MessageSend] No media files retrieved from any service for URL: ' + link;
         console.error(errorMsg);

@@ -56,13 +56,20 @@ export const inlineQuery = new Composer({ name: 'inlineQuery' })
 
     .chosenInlineResult(/.*/, async context => {
         try {
+            const links = searchLinks(context.query, true);
+            if (!links) {
+                const error = '[InlineQuery Handler] No links found for search query: ' + context.query;
+                console.error(error);
+                throw new Error(error);
+            }
+
             if (!context.inlineMessageId) {
                 const error = '[ChosenInlineResult] Missing inlineMessageId for query: ' + context.query;
                 console.error(error);
                 throw new Error(error);
             }
 
-            await inlineSend(context.query, context.inlineMessageId);
+            await inlineSend(links[0], context.inlineMessageId);
         } catch (e) {
             const errorMsg = `[ChosenInlineResult] Error: ${String(e)}\nUrl: ${context.query}`;
             console.error(errorMsg);

@@ -3,6 +3,7 @@ import { localDownload } from '../services/local-download';
 import { redis } from '../services/redis';
 import { editMedia, sendAnimation, sendAudio, sendPhoto, sendVideo, sendMessage } from '../services/telegram-api';
 import { ttApiDl } from '../services/tiktok-api-dl';
+import { tikwm } from '../services/tikwm';
 import { showMoreKeyboard } from '../shared/keyboards';
 import { IFile } from '../types/files';
 import { payloadGenerate } from './ref-generate';
@@ -15,10 +16,14 @@ export const inlineSend = async (link: string, inlineMessageId: string) => {
         .catch(async error => {
             if (/tiktok/.test(link)) {
                 return await ttApiDl.getFilesV1(link).catch(async () => {
-                    return await ttApiDl.getFilesV3(link);
+                    return await ttApiDl.getFilesV3(link).catch(async () => {
+                        return await tikwm.getFiles(link).catch(async () => {
+                            return await ttApiDl.getFilesV2(link);
+                        });
+                    });
                 });
             } else {
-                const errorMsg = '[InlineSend] Cobalt failed and URL is not TikTok: ' + String(error);
+                const errorMsg = '[MessageSend] Cobalt failed and URL is not TikTok: ' + String(error);
                 console.error(errorMsg);
                 throw new Error(errorMsg);
             }

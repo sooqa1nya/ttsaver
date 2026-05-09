@@ -1,8 +1,6 @@
 import { Composer } from 'gramio';
 import { searchLinks } from '../tools/search-links';
 import { sendMessage } from '../services/telegram-api';
-import { messageSend } from '../tools/message-send';
-import { emptyKeyboard, infoBMKeyboard } from '../shared/keyboards';
 import { guestSend } from '../tools/guest-send';
 
 
@@ -13,8 +11,6 @@ export const guestMessage = new Composer({ name: 'guestMessage' })
         }
 
         try {
-            console.log('[GuestMessage] Processing guest message:', { text: context.text, userId: context.from?.id });
-
             const links = searchLinks(context.text, true);
             if (!links) {
                 const error = `[GuestMessage] ❌ No valid links found in guest query\n  Query: "${context.text}"\n  UserId: ${context.from?.id}`;
@@ -28,7 +24,6 @@ export const guestMessage = new Composer({ name: 'guestMessage' })
                 throw new Error(error);
             }
 
-            console.log('[GuestMessage] ✅ Found link, sending media:', { link: links[0], guestQueryId: context.guestQueryId });
             await guestSend(links[0], context.guestQueryId);
         } catch (e) {
             const errorMsg = `[GuestMessage] ❌ Failed to process guest message\n  Text: ${context.text}\n  UserId: ${context.from?.id}\n  Error: ${String(e)}`;

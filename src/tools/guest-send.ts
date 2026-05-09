@@ -1,7 +1,7 @@
 import { cobalt } from '../services/cobalt';
 import { localDownload } from '../services/local-download';
 import { redis } from '../services/redis';
-import { editMedia, sendAnimation, sendAudio, sendPhoto, sendVideo, sendMessage, answerGuestQuery } from '../services/telegram-api';
+import { sendAnimation, sendAudio, sendPhoto, sendVideo, sendMessage, answerGuestQuery } from '../services/telegram-api';
 import { ttApiDl } from '../services/tiktok-api-dl';
 import { tikwm } from '../services/tikwm';
 import { showMoreKeyboard } from '../shared/keyboards';

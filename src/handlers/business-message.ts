@@ -6,7 +6,7 @@ import { emptyKeyboard, infoBMKeyboard } from '../shared/keyboards';
 
 
 export const businessMessages = new Composer({ name: 'businessMessages' })
-    .on("business_message", async context => {
+    .on('business_message', async context => {
         if (!context.hasText() || !context.hasFrom() || context.hasViaBot())
             return;
 

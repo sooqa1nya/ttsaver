@@ -1,4 +1,4 @@
-import { EditMessageMediaParams, SendAnimationParams, SendAudioParams, SendMediaGroupParams, SendMessageParams, SendPhotoParams, SendVideoParams } from 'gramio';
+import { AnswerGuestQueryParams, EditMessageMediaParams, SendAnimationParams, SendAudioParams, SendMediaGroupParams, SendMessageParams, SendPhotoParams, SendVideoParams } from 'gramio';
 import { bot } from '../../bot';
 
 export const sendMessage = async (params: SendMessageParams) => {
@@ -27,4 +27,8 @@ export const sendAudio = async (params: SendAudioParams) => {
 
 export const sendPhoto = async (params: SendPhotoParams) => {
     return await bot.api.sendPhoto(params);
+};
+
+export const answerGuestQuery = async (params: AnswerGuestQueryParams) => {
+    return await bot.api.answerGuestQuery(params);
 };

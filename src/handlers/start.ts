@@ -47,8 +47,10 @@ Supported sites include: TikTok, YouTube Shorts, Instagram, Twitter (X), Twitch 
 
 You can download media by sending a link to the bot's private messages. The bot also supports group chats (you need to give the bot permission to read and send messages). You can also download and send media within PM by writing: @bluesaverbot *link*
 
-New!
 The bot supports business mode. If you have Telegram Premium, you can connect it as a chat bot. After that, the bot will automatically search for supported links in the dialogue and send media. Permissions to read and send messages are required.
+
+New!
+The bot supports Guest Mode. Send the link to any chat and mention the bot. Example: “Check this out! <code>https://example.com</code> @bluesaverbot”
 
 I developed the bot for free use, so you won't see any ads here (maybe 😁).
 I also don't receive any money, so I would be very grateful for any support. You can get the details by clicking on the “💳 Support project” button.

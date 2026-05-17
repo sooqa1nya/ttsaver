@@ -144,10 +144,10 @@ class TikTokApiDl {
                     url: element
                 });
             }
-        } else if (download.result?.video_hd) {
-            const videoUrls = Array.isArray(download.result.video_hd)
-                ? download.result.video_hd
-                : [download.result.video_hd];
+        } else if (download.result?.videoHD) {
+            const videoUrls = Array.isArray(download.result.videoHD)
+                ? download.result.videoHD
+                : [download.result.videoHD];
 
             for (const videoUrl of videoUrls) {
                 const isValid = await this.validateVideoUrl(videoUrl);
@@ -162,28 +162,10 @@ class TikTokApiDl {
                     url: videoUrl
                 });
             }
-        } else if (download.result?.video1) {
-            const videoUrls = Array.isArray(download.result.video1)
-                ? download.result.video1
-                : [download.result.video1];
-
-            for (const videoUrl of videoUrls) {
-                const isValid = await this.validateVideoUrl(videoUrl);
-
-                if (!isValid) {
-                    console.warn(`[TikTokApiDl] Invalid video URL, skipping: ${videoUrl}`);
-                    continue;
-                }
-
-                files.push({
-                    type: 'video',
-                    url: videoUrl
-                });
-            }
-        } else if (download.result?.video2) {
-            const videoUrls = Array.isArray(download.result.video2)
-                ? download.result.video2
-                : [download.result.video2];
+        } else if (download.result?.videoSD) {
+            const videoUrls = Array.isArray(download.result.videoSD)
+                ? download.result.videoSD
+                : [download.result.videoSD];
 
             for (const videoUrl of videoUrls) {
                 const isValid = await this.validateVideoUrl(videoUrl);
@@ -206,6 +188,6 @@ class TikTokApiDl {
 
         return files;
     };
-}
+};
 
 export const ttApiDl = new TikTokApiDl();

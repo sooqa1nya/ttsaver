@@ -1,4 +1,4 @@
-FROM node:current-alpine3.22  
+FROM node:22-bookworm-slim
 
 ENV TZ="Europe/Moscow"
 

@@ -82,7 +82,9 @@ export const messageSend = async (link: string, chatId: string | number, busines
         throw new Error(errorMsg);
     } finally {
         files.forEach(x => {
+            console.log('[finally]:' + x.remove);
             if (x.remove) {
+                console.log('[remove]' + x.remove);
                 localDownload.removeFile(x.remove);
             }
         });

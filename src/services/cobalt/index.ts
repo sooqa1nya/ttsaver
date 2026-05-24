@@ -40,6 +40,7 @@ class Cobalt {
             files.push({
                 type: await this.getFileType(download.filename),
                 url: await MediaUpload.path(localFile),
+                remove: localFile
             });
         } else if (download.status === 'picker') {
             for (const element of download.picker) {

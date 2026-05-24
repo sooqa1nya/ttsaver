@@ -45,7 +45,3 @@ class LocalDownload {
 }
 
 export const localDownload = new LocalDownload();
-
-(async () => {
-
-})();

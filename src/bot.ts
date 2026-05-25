@@ -8,7 +8,11 @@ import { service } from './handlers/service';
 import { guestMessage } from './handlers/guest-message';
 
 
-export const bot = new Bot(process.env.BOT_TOKEN!)
+export const bot = new Bot(process.env.BOT_TOKEN!, {
+    api: {
+        baseURL: process.env.TELEGRAM_API_BASE_URL!
+    }
+})
     .extend(cache)
     .extend(start)
     .extend(messages)

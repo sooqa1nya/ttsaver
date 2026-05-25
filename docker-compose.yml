@@ -15,7 +15,7 @@ services:
 
     labels:
       - com.centurylinklabs.watchtower.scope=cobalt
-    #volumes:
+      #volumes:
       #- ./cookies.json:/cookies.json
     networks:
       - SaverAndCobalt
@@ -27,6 +27,19 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
+  telegram-bot-api:
+    image: aiogram/telegram-bot-api:latest
+    container_name: telegram-bot-api
+    environment:
+      - TELEGRAM_API_ID=${TELEGRAM_API_ID}
+      - TELEGRAM_API_HASH=${TELEGRAM_API_HASH}
+      - TELEGRAM_LOCAL=1
+    networks:
+      - SaverAndCobalt
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+
   ttsaver:
     build:
       context: .
@@ -37,6 +50,7 @@ services:
       - SaverAndCobalt
     depends_on:
       - cobalt-api
+      - telegram-bot-api
 
   redis:
     image: redis:8.6.1-alpine

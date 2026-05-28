@@ -12,10 +12,10 @@ export const messageSend = async (link: string, chatId: string | number, busines
     const files: IFile[] = await cobalt.getFiles(link)
         .catch(async error => {
             if (/tiktok/.test(link)) {
-                return await tikwm.getFiles(link).catch(async () => {
-                    return await ttApiDl.getFilesV3(link).catch(async () => {
-                        return await ttApiDl.getFilesV1(link).catch(async () => {
-                            return await ttApiDl.getFilesV2(link);
+                return await ttApiDl.getFilesV1(link).catch(async () => {
+                    return await ttApiDl.getFilesV2(link).catch(async () => {
+                        return await ttApiDl.getFilesV3(link).catch(async () => {
+                            return await tikwm.getFiles(link);
                         });
                     });
                 });
@@ -25,6 +25,7 @@ export const messageSend = async (link: string, chatId: string | number, busines
                 throw new Error(errorMsg);
             }
         });
+
 
     if (!files.length) {
         const errorMsg = '[MessageSend] No media files retrieved from any service for URL: ' + link;

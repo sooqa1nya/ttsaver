@@ -1,30 +1,10 @@
 import { Downloader } from '@tobyg74/tiktok-api-dl';
 import { IFile } from '../../types/files';
+import { localDownload } from '../local-download';
+import { MediaUpload } from 'gramio';
 
 
 class TikTokApiDl {
-    private validateVideoUrl = async (url: string): Promise<boolean> => {
-        try {
-            const response = await fetch(url, {
-                headers: {
-                    'Range': 'bytes=0-1'
-                }
-            });
-
-            const contentType = response.headers.get('content-type');
-            const contentLength = response.headers.get('content-length');
-
-            return (
-                (response.ok || response.status === 206) &&
-                (contentType?.includes('video') ?? false) &&
-                (parseInt(contentLength || '0') > 0)
-            );
-        } catch (error) {
-            console.error('[TikTokApiDl] Error validating video URL:', url, error);
-            return false;
-        }
-    };
-
     public getFilesV1 = async (link: string) => {
         let files: IFile[] = [];
 
@@ -47,13 +27,6 @@ class TikTokApiDl {
             }
         } else if (download.result?.video?.downloadAddr) {
             for (const videoUrl of download.result.video.downloadAddr) {
-                const isValid = await this.validateVideoUrl(videoUrl);
-
-                if (!isValid) {
-                    console.warn(`[TikTokApiDl] Invalid video URL, skipping: ${videoUrl}`);
-                    continue;
-                }
-
                 files.push({
                     type: 'video',
                     url: videoUrl
@@ -88,27 +61,24 @@ class TikTokApiDl {
 
         if (download.result?.images) {
             for (const element of download.result.images) {
+                const localFile = await localDownload.download(element, Math.floor(Math.random() * 100000).toString() + download.result.desc + '.jpg');
                 files.push({
                     type: 'photo',
-                    url: element
+                    url: await MediaUpload.path(localFile),
+                    remove: localFile
                 });
             }
         } else if (download.result?.video) {
-            const videoUrls = Array.isArray(download.result.video)
-                ? download.result.video
-                : [download.result.video];
+            const videoUrls = Array.isArray(download.result.video.playAddr)
+                ? download.result.video.playAddr
+                : [download.result.video.playAddr];
 
             for (const videoUrl of videoUrls) {
-                const isValid = await this.validateVideoUrl(videoUrl);
-
-                if (!isValid) {
-                    console.warn(`[TikTokApiDl] Invalid video URL, skipping: ${videoUrl}`);
-                    continue;
-                }
-
+                const localFile = await localDownload.download(videoUrl, Math.floor(Math.random() * 100000).toString() + download.result.desc + '.mp4');
                 files.push({
                     type: 'video',
-                    url: videoUrl
+                    url: await MediaUpload.path(localFile),
+                    remove: localFile
                 });
                 break;
             }
@@ -150,16 +120,11 @@ class TikTokApiDl {
                 : [download.result.videoHD];
 
             for (const videoUrl of videoUrls) {
-                const isValid = await this.validateVideoUrl(videoUrl);
-
-                if (!isValid) {
-                    console.warn(`[TikTokApiDl] Invalid video URL, skipping: ${videoUrl}`);
-                    continue;
-                }
-
+                const localFile = await localDownload.download(videoUrl, Math.floor(Math.random() * 100000).toString() + download.result.desc + '.mp4');
                 files.push({
                     type: 'video',
-                    url: videoUrl
+                    url: await MediaUpload.path(localFile),
+                    remove: localFile
                 });
             }
         } else if (download.result?.videoSD) {
@@ -168,13 +133,6 @@ class TikTokApiDl {
                 : [download.result.videoSD];
 
             for (const videoUrl of videoUrls) {
-                const isValid = await this.validateVideoUrl(videoUrl);
-
-                if (!isValid) {
-                    console.warn(`[TikTokApiDl] Invalid video URL, skipping: ${videoUrl}`);
-                    continue;
-                }
-
                 files.push({
                     type: 'video',
                     url: videoUrl

@@ -16,9 +16,9 @@ export const inlineSend = async (link: string, inlineMessageId: string) => {
         .catch(async error => {
             if (/tiktok/.test(link)) {
                 return await ttApiDl.getFilesV1(link).catch(async () => {
-                    return await ttApiDl.getFilesV3(link).catch(async () => {
-                        return await tikwm.getFiles(link).catch(async () => {
-                            return await ttApiDl.getFilesV2(link);
+                    return await ttApiDl.getFilesV2(link).catch(async () => {
+                        return await ttApiDl.getFilesV3(link).catch(async () => {
+                            return await tikwm.getFiles(link);
                         });
                     });
                 });

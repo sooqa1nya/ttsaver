@@ -14,17 +14,16 @@ export const guestSend = async (link: string, guestQueryId: string) => {
 
     const files: IFile[] = await cobalt.getFiles(link)
         .catch(async error => {
-            console.warn('[GuestSend] ⚠️ Cobalt service failed, trying fallback services...');
             if (/tiktok/.test(link)) {
                 return await ttApiDl.getFilesV1(link).catch(async () => {
-                    return await ttApiDl.getFilesV3(link).catch(async () => {
-                        return await tikwm.getFiles(link).catch(async () => {
-                            return await ttApiDl.getFilesV2(link);
+                    return await ttApiDl.getFilesV2(link).catch(async () => {
+                        return await ttApiDl.getFilesV3(link).catch(async () => {
+                            return await tikwm.getFiles(link);
                         });
                     });
                 });
             } else {
-                const errorMsg = `[GuestSend] ❌ Cobalt failed and URL is not TikTok\n  Link: ${link}\n  Error: ${String(error)}`;
+                const errorMsg = '[MessageSend] Cobalt failed and URL is not TikTok: ' + String(error);
                 console.error(errorMsg);
                 throw new Error(errorMsg);
             }

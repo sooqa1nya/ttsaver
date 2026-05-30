@@ -8,25 +8,7 @@ import { ttApiDl } from '../services/tiktok-api-dl';
 import { tikwm } from '../services/tikwm';
 
 
-export const messageSend = async (link: string, chatId: string | number, businessId: string | undefined = undefined,) => {
-    const files: IFile[] = await cobalt.getFiles(link)
-        .catch(async error => {
-            if (/tiktok/.test(link)) {
-                return await ttApiDl.getFilesV1(link).catch(async () => {
-                    return await ttApiDl.getFilesV2(link).catch(async () => {
-                        return await ttApiDl.getFilesV3(link).catch(async () => {
-                            return await tikwm.getFiles(link);
-                        });
-                    });
-                });
-            } else {
-                const errorMsg = '[MessageSend] Cobalt failed and URL is not TikTok: ' + String(error);
-                console.error(errorMsg);
-                throw new Error(errorMsg);
-            }
-        });
-
-
+const main = async (files: IFile[], link: string, chatId: string | number, businessId: string | undefined = undefined) => {
     if (!files.length) {
         const errorMsg = '[MessageSend] No media files retrieved from any service for URL: ' + link;
         console.error(errorMsg);
@@ -88,4 +70,36 @@ export const messageSend = async (link: string, chatId: string | number, busines
             }
         });
     }
+};
+
+export const messageSend = async (link: string, chatId: string | number, businessId: string | undefined = undefined) => {
+    const isTikTok = /tiktok/.test(link);
+
+    const methods = [
+        () => cobalt.getFiles(link),
+        ...(isTikTok ? [
+            () => ttApiDl.getFilesV1(link),
+            () => ttApiDl.getFilesV2(link),
+            () => ttApiDl.getFilesV3(link),
+            () => tikwm.getFiles(link)
+        ] : [])
+    ];
+
+    let lastError: Error | undefined;
+
+    for (const getFiles of methods) {
+        try {
+            const files = await getFiles();
+            await main(files, link, chatId, businessId);
+            return;
+        } catch (error) {
+            lastError = error as Error;
+        }
+    }
+
+    const errorMsg = lastError
+        ? `[MessageSend] All methods failed. Last error: ${String(lastError)}`
+        : '[MessageSend] No methods available for this URL';
+    console.error(errorMsg);
+    throw new Error(errorMsg);
 };

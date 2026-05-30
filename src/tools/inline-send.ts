@@ -9,25 +9,8 @@ import { IFile } from '../types/files';
 import { payloadGenerate } from './ref-generate';
 
 
-export const inlineSend = async (link: string, inlineMessageId: string) => {
+const main = async (files: IFile[], link: string, inlineMessageId: string) => {
     const chatId: string = process.env.CHAT_LOG!;
-
-    const files: IFile[] = await cobalt.getFiles(link)
-        .catch(async error => {
-            if (/tiktok/.test(link)) {
-                return await ttApiDl.getFilesV1(link).catch(async () => {
-                    return await ttApiDl.getFilesV2(link).catch(async () => {
-                        return await ttApiDl.getFilesV3(link).catch(async () => {
-                            return await tikwm.getFiles(link);
-                        });
-                    });
-                });
-            } else {
-                const errorMsg = '[MessageSend] Cobalt failed and URL is not TikTok: ' + String(error);
-                console.error(errorMsg);
-                throw new Error(errorMsg);
-            }
-        });
 
     if (!files.length) {
         const errorMsg = '[InlineSend] No media files retrieved from any service for URL: ' + link;
@@ -105,4 +88,36 @@ export const inlineSend = async (link: string, inlineMessageId: string) => {
             }
         });
     }
+};
+
+export const inlineSend = async (link: string, inlineMessageId: string) => {
+    const isTikTok = /tiktok/.test(link);
+
+    const methods = [
+        () => cobalt.getFiles(link),
+        ...(isTikTok ? [
+            () => ttApiDl.getFilesV1(link),
+            () => ttApiDl.getFilesV2(link),
+            () => ttApiDl.getFilesV3(link),
+            () => tikwm.getFiles(link)
+        ] : [])
+    ];
+
+    let lastError: Error | undefined;
+
+    for (const getFiles of methods) {
+        try {
+            const files = await getFiles();
+            await main(files, link, inlineMessageId);
+            return;
+        } catch (error) {
+            lastError = error as Error;
+        }
+    }
+
+    const errorMsg = lastError
+        ? `[InlineSend] All methods failed. Last error: ${String(lastError)}`
+        : '[InlineSend] No methods available for this URL';
+    console.error(errorMsg);
+    throw new Error(errorMsg);
 };

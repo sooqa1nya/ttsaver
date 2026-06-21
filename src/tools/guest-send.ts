@@ -1,7 +1,7 @@
 import { cobalt } from '../services/cobalt';
 import { localDownload } from '../services/local-download';
 import { redis } from '../services/redis';
-import { sendAnimation, sendAudio, sendPhoto, sendVideo, sendMessage, answerGuestQuery } from '../services/telegram-api';
+import { sendAnimation, sendAudio, sendPhoto, sendVideo, sendMessage, answerGuestQuery, editMedia } from '../services/telegram-api';
 import { ttApiDl } from '../services/tiktok-api-dl';
 import { tikwm } from '../services/tikwm';
 import { showMoreKeyboard } from '../shared/keyboards';
@@ -9,11 +9,11 @@ import { IFile } from '../types/files';
 import { payloadGenerate } from './ref-generate';
 
 
-const main = async (files: IFile[], link: string, guestQueryId: string) => {
+const main = async (files: IFile[], link: string, inlineMessageId: string) => {
     const chatId: string = process.env.CHAT_LOG!;
 
     if (!files.length) {
-        const errorMsg = `[GuestSend] ❌ No media files retrieved from any service\n  Link: ${link}\n  GuestQueryId: ${guestQueryId}`;
+        const errorMsg = `[GuestSend] ❌ No media files retrieved from any service\n  Link: ${link}\n  inlineMessageId: ${inlineMessageId}`;
         console.error(errorMsg);
         await sendMessage({
             chat_id: process.env.CHAT_LOG!,
@@ -28,61 +28,50 @@ const main = async (files: IFile[], link: string, guestQueryId: string) => {
     try {
         if (file.type === 'video') {
             const message = await sendVideo({ chat_id: chatId, video: file.url });
-            await answerGuestQuery({
-                guest_query_id: guestQueryId,
-                result: {
+            await editMedia({
+                inline_message_id: inlineMessageId,
+                media: {
                     type: 'video',
-                    video_url: message.video!.file_id,
-                    thumbnail_url: message.video!.file_id,
-                    id: new Date().getTime().toString(),
-                    title: 'Video',
-                    mime_type: 'video/mp4',
-                    ...(files.length > 1 ? { reply_markup: showMoreKeyboard(payload) } : {})
-                }
+                    media: message.video!.file_id
+                },
+                ...(files.length > 1 ? { reply_markup: showMoreKeyboard(payload) } : {})
             });
         } else if (file.type === 'photo') {
             const message = await sendPhoto({ chat_id: chatId, photo: file.url });
-            await answerGuestQuery({
-                guest_query_id: guestQueryId,
-                result: {
+            await editMedia({
+                inline_message_id: inlineMessageId,
+                media: {
                     type: 'photo',
-                    photo_url: message.photo![0].file_id,
-                    thumbnail_url: message.photo![0].file_id,
-                    id: new Date().getTime().toString(),
-                    title: 'Photo',
-                    ...(files.length > 1 ? { reply_markup: showMoreKeyboard(payload) } : {})
-                }
+                    media: message.photo![0].file_id
+                },
+                ...(files.length > 1 ? { reply_markup: showMoreKeyboard(payload) } : {})
             });
         } else if (file.type === 'audio') {
             const message = await sendAudio({ chat_id: chatId, audio: file.url });
-            await answerGuestQuery({
-                guest_query_id: guestQueryId,
-                result: {
+            await editMedia({
+                inline_message_id: inlineMessageId,
+                media: {
                     type: 'audio',
-                    audio_url: message.audio!.file_id,
-                    id: new Date().getTime().toString(),
-                    title: 'Audio',
-                    ...(files.length > 1 ? { reply_markup: showMoreKeyboard(payload) } : {})
+                    media: message.audio!.file_id
                 },
                 ...(files.length > 1 ? { reply_markup: showMoreKeyboard(payload) } : {})
             });
         } else if (file.type === 'gif') {
             const message = await sendAnimation({ chat_id: chatId, animation: file.url });
-            await answerGuestQuery({
-                guest_query_id: guestQueryId,
-                result: {
-                    type: 'gif',
-                    gif_url: message.animation!.file_id,
-                    thumbnail_url: message.video!.file_id,
-                    id: new Date().getTime().toString(),
-                    title: 'GIF',
-                    ...(files.length > 1 ? { reply_markup: showMoreKeyboard(payload) } : {})
-                }
+            await editMedia({
+                inline_message_id: inlineMessageId,
+                media: {
+                    type: 'animation',
+                    media: message.animation!.file_id
+                },
+                ...(files.length > 1 ? { reply_markup: showMoreKeyboard(payload) } : {})
             });
         }
 
         if (files.length > 1) {
+            console.log('set link');
             await redis.set(payload, link);
+            console.log('true');
         }
 
     } catch (error) {
@@ -103,7 +92,7 @@ const main = async (files: IFile[], link: string, guestQueryId: string) => {
     }
 };
 
-export const guestSend = async (link: string, guestQueryId: string) => {
+export const guestSend = async (link: string, inlineMessageId: string) => {
     const isTikTok = /tiktok/.test(link);
 
     const methods = [
@@ -121,7 +110,7 @@ export const guestSend = async (link: string, guestQueryId: string) => {
     for (const getFiles of methods) {
         try {
             const files = await getFiles();
-            await main(files, link, guestQueryId);
+            await main(files, link, inlineMessageId);
             return;
         } catch (error) {
             lastError = error as Error;

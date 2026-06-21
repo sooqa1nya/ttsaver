@@ -11,7 +11,12 @@ export const guestMessage = new Composer({ name: 'guestMessage' })
         }
 
         try {
-            const links = searchLinks(context.text, true);
+            let links = searchLinks(context.text, true);
+            if (!links && context.replyMessage?.text) {
+                links = searchLinks(context.replyMessage.text, true);
+            }
+
+
             if (!links) {
                 const error = `[GuestMessage] ❌ No valid links found in guest query\n  Query: "${context.text}"\n  UserId: ${context.from?.id}`;
                 console.error(error);

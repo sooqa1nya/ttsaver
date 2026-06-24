@@ -1,7 +1,6 @@
 import { MediaUpload } from 'gramio';
 import { localDownload } from '../local-download';
 import { IResponseCobalt } from './types';
-import { scheduler } from 'node:timers/promises';
 import { IFile } from '../../types/files';
 
 class Cobalt {

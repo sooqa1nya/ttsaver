@@ -35,11 +35,11 @@ class Cobalt {
                 url: await MediaUpload.url(download.url),
             });
         } else if (download.status === 'tunnel') {
-            const localFile = await localDownload.download(download.url, Math.floor(Math.random() * 100000).toString() + download.filename);
+            // const localFile = await localDownload.download(download.url, Math.floor(Math.random() * 100000).toString() + download.filename);
             files.push({
                 type: await this.getFileType(download.filename),
-                url: await MediaUpload.path(localFile),
-                remove: localFile
+                url: await MediaUpload.url(download.url)
+                // remove: localFile
             });
         } else if (download.status === 'picker') {
             for (const element of download.picker) {

@@ -18,9 +18,14 @@ class Ytdl {
         }
     };
 
-    private downloadMedia = async (url: string, customPath: string, customName: string) => {
+    private downloadMedia = async (url: string) => {
         try {
-            await youtubeDl(url, {
+            const customPath = path.join(__dirname, 'temp');
+            const customName = `%(title)s [${new Date().getTime()}].%(ext)s`;
+
+            const ytdl = await youtubeDl(url, {
+                format: 'bestvideo+bestaudio/best',
+                mergeOutputFormat: 'mp4',
                 paths: customPath,
                 output: customName,
                 noCheckCertificates: true,
@@ -30,6 +35,26 @@ class Ytdl {
                 maxFilesize: '2000M',
                 userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36'
             });
+
+            const logs = ytdl.toString();
+            let finalPath: string | null = null;
+
+            const mergerMatch = logs.match(/[\s\S]*\[Merger\]\s+Merging\s+formats\s+into\s+"(.+?)"/m);
+
+            if (mergerMatch) {
+                finalPath = mergerMatch[1];
+            } else {
+                const downloadMatch = logs.match(/[\s\S]*\[download\]\s+Destination:\s+(.+)$/m);
+                if (downloadMatch) {
+                    finalPath = downloadMatch[1];
+                }
+            }
+
+            if (!finalPath) {
+                throw new Error('[Ytdl] downloadMedia Error search path');
+            }
+
+            return path.resolve(finalPath.trim());
         } catch (error) {
             throw new Error('[Ytdl] downloadMedia Error downloading media: ' + error);
         }
@@ -41,11 +66,7 @@ class Ytdl {
             throw new Error('[Ytdl] download Invalid content info received: ' + info);
         }
 
-        const customPath = path.join(__dirname, 'temp');
-        const customName = `${info.title} [${new Date().getTime()}].${info.ext}`;
-        const pathToFile = path.join(customPath, customName);
-
-        await this.downloadMedia(url, customPath, customName);
+        const pathToFile = await this.downloadMedia(url);
 
         return [{
             type: info.ext === 'm4a' ? 'audio' : 'video',

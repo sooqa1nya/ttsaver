@@ -8,6 +8,11 @@ RUN apt-get install -y wget python3 \
     && wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/local/bin/yt-dlp \
     && chmod a+rx /usr/local/bin/yt-dlp
 
+RUN apt-get install -y \
+    ffmpeg \
+    python3 \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /project
 COPY package*.json ./
 RUN npm install

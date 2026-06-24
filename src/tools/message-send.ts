@@ -3,10 +3,7 @@ import { localDownload } from '../services/local-download';
 import { sendAnimation, sendAudio, sendMediaGroup, sendPhoto, sendVideo } from '../services/telegram-api';
 import { chunk } from './chunk';
 import { IFile } from '../types/files';
-import { ytdl } from '../services/yt-dl';
-import { ttApiDl } from '../services/tiktok-api-dl';
-import { cobalt } from '../services/cobalt';
-import { tikwm } from '../services/tikwm';
+import { getMethods } from './get-methods';
 
 
 const main = async (files: IFile[], link: string, chatId: string | number, businessId: string | undefined = undefined) => {
@@ -74,22 +71,9 @@ const main = async (files: IFile[], link: string, chatId: string | number, busin
 };
 
 export const messageSend = async (link: string, chatId: string | number, businessId: string | undefined = undefined) => {
-    const isTikTok = /tiktok/.test(link);
-
-    const methods = [
-        () => ytdl.download(link),
-        () => cobalt.getFiles(link),
-        ...(isTikTok ? [
-            () => ttApiDl.getFilesV1(link),
-            () => ttApiDl.getFilesV2(link),
-            () => ttApiDl.getFilesV3(link),
-            () => tikwm.getFiles(link)
-        ] : [])
-    ];
-
     let lastError: Error | undefined;
 
-    for (const getFiles of methods) {
+    for (const getFiles of getMethods(link)) {
         try {
             const files = await getFiles();
             await main(files, link, chatId, businessId);

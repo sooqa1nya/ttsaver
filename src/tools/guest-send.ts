@@ -6,6 +6,7 @@ import { ttApiDl } from '../services/tiktok-api-dl';
 import { tikwm } from '../services/tikwm';
 import { showMoreKeyboard } from '../shared/keyboards';
 import { IFile } from '../types/files';
+import { getMethods } from './get-methods';
 import { payloadGenerate } from './ref-generate';
 
 
@@ -93,21 +94,9 @@ const main = async (files: IFile[], link: string, inlineMessageId: string) => {
 };
 
 export const guestSend = async (link: string, inlineMessageId: string) => {
-    const isTikTok = /tiktok/.test(link);
-
-    const methods = [
-        () => cobalt.getFiles(link),
-        ...(isTikTok ? [
-            () => ttApiDl.getFilesV1(link),
-            () => ttApiDl.getFilesV2(link),
-            () => ttApiDl.getFilesV3(link),
-            () => tikwm.getFiles(link)
-        ] : [])
-    ];
-
     let lastError: Error | undefined;
 
-    for (const getFiles of methods) {
+    for (const getFiles of getMethods(link)) {
         try {
             const files = await getFiles();
             await main(files, link, inlineMessageId);

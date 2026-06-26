@@ -4,16 +4,13 @@ ENV TZ="Europe/Moscow"
 
 RUN apt-get update
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    wget \
-    python3 \
+RUN apt-get install -y wget python3 \
+    && wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/local/bin/yt-dlp \
+    && chmod a+rx /usr/local/bin/yt-dlp
+
+RUN apt-get install -y \
     ffmpeg \
-    && wget -q https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp \
-        -O /usr/local/bin/yt-dlp \
-    && chmod a+rx /usr/local/bin/yt-dlp \
-    && apt-get purge -y --auto-remove wget \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /var/cache/apt/*
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /project
 COPY package*.json ./

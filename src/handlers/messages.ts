@@ -13,8 +13,13 @@ export const messages = new Composer({ name: 'messages' })
         if (!links)
             return;
 
+        await context.setReaction('👌');
+
         for (const link of links) {
-            try { await messageSend(link, context.chat.id); }
+            try {
+                await messageSend(link, context.chat.id);
+                await context.clearReactions();
+            }
             catch (e) {
                 const errorMsg = `[Messages] Media send error - ${String(e)}`;
                 console.error(errorMsg, 'Link:', link);

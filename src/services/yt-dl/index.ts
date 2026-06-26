@@ -1,4 +1,4 @@
-import { youtubeDl } from 'youtube-dl-exec';
+import { Payload, youtubeDl } from 'youtube-dl-exec';
 import path from 'path';
 import { IFile } from '../../types/files';
 import { MediaUpload } from 'gramio';
@@ -18,23 +18,44 @@ class Ytdl {
         }
     };
 
-    private downloadMedia = async (url: string) => {
+    private getDownloadAll = async (url: string, customPath: string, customName: string) => {
+        return await youtubeDl(url, {
+            format: 'bestvideo+bestaudio/best',
+            mergeOutputFormat: 'mp4',
+            paths: customPath,
+            output: customName,
+            noCheckCertificates: true,
+            noWarnings: true,
+            noProgress: true,
+            retries: 3,
+            maxFilesize: '2000M',
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36'
+        });
+    };
+
+    private getDownloadCoub = async (url: string, customPath: string, customName: string, info: Payload) => {
+        return await youtubeDl(url, {
+            format: 'bestvideo+bestaudio/best',
+            mergeOutputFormat: 'mp4',
+            downloadSections: `*0-${info.duration}`,
+            forceKeyframesAtCuts: true,
+            paths: customPath,
+            output: customName,
+            noCheckCertificates: true,
+            noWarnings: true,
+            noProgress: true,
+            retries: 3,
+            maxFilesize: '2000M',
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36'
+        });
+    };
+
+    private downloadMedia = async (url: string, info: Payload) => {
         try {
             const customPath = path.join(__dirname, 'temp');
             const customName = `%(title)s [${new Date().getTime()}].%(ext)s`;
 
-            const ytdl = await youtubeDl(url, {
-                format: 'bestvideo+bestaudio/best',
-                mergeOutputFormat: 'mp4',
-                paths: customPath,
-                output: customName,
-                noCheckCertificates: true,
-                noWarnings: true,
-                noProgress: true,
-                retries: 3,
-                maxFilesize: '2000M',
-                userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36'
-            });
+            const ytdl = /(https?:\/\/)coub\.com\/([\S]+)/.test(url) ? await this.getDownloadCoub(url, customPath, customName, info) : await this.getDownloadAll(url, customPath, customName);
 
             const logs = ytdl.toString();
             let finalPath: string | null = null;
@@ -66,7 +87,7 @@ class Ytdl {
             throw new Error('[Ytdl] download Invalid content info received: ' + info);
         }
 
-        const pathToFile = await this.downloadMedia(url);
+        const pathToFile = await this.downloadMedia(url, info);
 
         return [{
             type: info.ext === 'm4a' ? 'audio' : 'video',

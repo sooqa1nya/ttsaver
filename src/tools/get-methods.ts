@@ -7,10 +7,10 @@ export const getMethods = (link: string) => {
     const isTikTok = /tiktok/.test(link);
     return [
         ...(isTikTok ? [
-            () => ttApiDl.getFilesV1(link),
-            () => ttApiDl.getFilesV2(link),
             () => ttApiDl.getFilesV3(link),
-            () => tikwm.getFiles(link)
+            () => tikwm.getFiles(link),
+            () => ttApiDl.getFilesV2(link),
+            () => ttApiDl.getFilesV1(link)
         ] : []),
         () => ytdl.download(link),
         () => cobalt.getFiles(link),

@@ -2,6 +2,7 @@ import { Payload, youtubeDl } from 'youtube-dl-exec';
 import path from 'path';
 import { IFile } from '../../types/files';
 import { MediaUpload } from 'gramio';
+import { localDownload } from '../local-download';
 
 
 class Ytdl {
@@ -60,6 +61,15 @@ class Ytdl {
             const logs = ytdl.toString();
             let finalPath: string | null = null;
 
+            // Проверка на превышение максимального размера файла
+            if (/^[\s\S]*\[download\]\s+File\s+is\s+larger\s+than\s+max-filesize/.test(logs)) {
+
+                const regex = /^\[download\] Destination:\s+(.+)$/gm;
+                [...logs.matchAll(regex)].map(match => localDownload.removeFile(match[1]));
+
+                throw new Error('[Ytdl] downloadMedia Error: File is larger than max-filesize');
+            }
+
             const mergerMatch = logs.match(/[\s\S]*\[Merger\]\s+Merging\s+formats\s+into\s+"(.+?)"/m);
 
             if (mergerMatch) {
@@ -88,7 +98,8 @@ class Ytdl {
         }
 
         const pathToFile = await this.downloadMedia(url, info);
-        const type = pathToFile.match(/\.(\w+)$/)?.[1] === 'mp4' ? 'video' : 'audio';
+        const format = pathToFile.match(/\.(\w+)$/)?.[1];
+        const type = (format === 'mp4' || format === 'webm') ? 'video' : 'audio';
 
         return [{
             type,

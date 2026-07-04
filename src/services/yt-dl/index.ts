@@ -88,9 +88,10 @@ class Ytdl {
         }
 
         const pathToFile = await this.downloadMedia(url, info);
+        const type = pathToFile.match(/\.(\w+)$/)?.[1] === 'mp4' ? 'video' : 'audio';
 
         return [{
-            type: info.ext === 'mp4' ? 'video' : 'audio',
+            type,
             url: await MediaUpload.path(pathToFile),
             remove: pathToFile
         }];

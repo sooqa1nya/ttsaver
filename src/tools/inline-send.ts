@@ -29,6 +29,10 @@ const main = async (files: IFile[], link: string, inlineMessageId: string) => {
     try {
         if (file.type === 'video') {
             const message = await sendVideo({ chat_id: chatId, video: file.url });
+            if (message.video) {
+                await redis.set(link, message.video.file_id, 259200);
+            }
+
             await editMedia({
                 inline_message_id: inlineMessageId,
                 media: {
@@ -93,6 +97,20 @@ const main = async (files: IFile[], link: string, inlineMessageId: string) => {
 
 export const inlineSend = async (link: string, inlineMessageId: string) => {
     let lastError: Error | undefined;
+
+    try {
+        const cachedFileId = await redis.get(link);
+        if (cachedFileId) {
+            await editMedia({
+                inline_message_id: inlineMessageId,
+                media: {
+                    type: 'video',
+                    media: cachedFileId
+                }
+            });
+            return;
+        }
+    } catch { }
 
     for (const getFiles of getMethods(link)) {
         try {

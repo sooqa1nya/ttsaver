@@ -1,4 +1,4 @@
-import { createClient, RedisClientType } from "redis";
+import { createClient } from "redis";
 
 class Redis {
     private client;
@@ -11,8 +11,8 @@ class Redis {
             .connect();
     }
 
-    public async set(key: string, value: string) {
-        return (await this.client).set(key, value, { EX: 604800 });
+    public async set(key: string, value: string, EX: number = 604800) {
+        return (await this.client).set(key, value, { EX });
     }
 
     public async get(key: string) {

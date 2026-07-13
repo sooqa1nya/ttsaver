@@ -4,6 +4,7 @@ import { sendAnimation, sendAudio, sendMediaGroup, sendPhoto, sendVideo } from '
 import { chunk } from './chunk';
 import { IFile } from '../types/files';
 import { getMethods } from './get-methods';
+import { redis } from '../services/redis';
 
 
 const main = async (files: IFile[], link: string, chatId: string | number, businessId: string | undefined = undefined) => {
@@ -18,7 +19,10 @@ const main = async (files: IFile[], link: string, chatId: string | number, busin
         for (const file of files) {
             if (file.type === 'video') {
                 if (files.length === 1) {
-                    await sendVideo({ business_connection_id: businessId, chat_id: chatId, video: file.url });
+                    const message = await sendVideo({ business_connection_id: businessId, chat_id: chatId, video: file.url });
+                    if (message.video) {
+                        await redis.set(link, message.video.file_id, 259200);
+                    }
                     return;
                 }
 
@@ -72,6 +76,14 @@ const main = async (files: IFile[], link: string, chatId: string | number, busin
 
 export const messageSend = async (link: string, chatId: string | number, businessId: string | undefined = undefined) => {
     let lastError: Error | undefined;
+
+    try {
+        const cachedFileId = await redis.get(link);
+        if (cachedFileId) {
+            await sendVideo({ business_connection_id: businessId, chat_id: chatId, video: cachedFileId });
+            return;
+        }
+    } catch { }
 
     for (const getFiles of getMethods(link)) {
         try {

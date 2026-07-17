@@ -7,7 +7,7 @@ import { getMethods } from './get-methods';
 import { redis } from '../services/redis';
 
 
-const main = async (files: IFile[], link: string, chatId: string | number, businessId: string | undefined = undefined) => {
+const main = async (files: IFile[], link: string, chatId: string | number, messageId: number, businessId: string | undefined = undefined) => {
     if (!files.length) {
         const errorMsg = '[MessageSend] No media files retrieved from any service for URL: ' + link;
         console.error(errorMsg);
@@ -19,7 +19,7 @@ const main = async (files: IFile[], link: string, chatId: string | number, busin
         for (const file of files) {
             if (file.type === 'video') {
                 if (files.length === 1) {
-                    const message = await sendVideo({ business_connection_id: businessId, chat_id: chatId, video: file.url });
+                    const message = await sendVideo({ business_connection_id: businessId, chat_id: chatId, video: file.url, reply_parameters: { message_id: messageId } });
                     if (message.video) {
                         await redis.set(link, message.video.file_id, 259200);
                     }
@@ -31,7 +31,7 @@ const main = async (files: IFile[], link: string, chatId: string | number, busin
                 );
             } else if (file.type === 'photo') {
                 if (files.length === 1) {
-                    await sendPhoto({ business_connection_id: businessId, chat_id: chatId, photo: file.url });
+                    await sendPhoto({ business_connection_id: businessId, chat_id: chatId, photo: file.url, reply_parameters: { message_id: messageId } });
                     return;
                 }
 
@@ -40,7 +40,7 @@ const main = async (files: IFile[], link: string, chatId: string | number, busin
                 );
             } else if (file.type === 'audio') {
                 if (files.length === 1) {
-                    await sendAudio({ business_connection_id: businessId, chat_id: chatId, audio: file.url });
+                    await sendAudio({ business_connection_id: businessId, chat_id: chatId, audio: file.url, reply_parameters: { message_id: messageId } });
                     return;
                 }
 
@@ -48,7 +48,7 @@ const main = async (files: IFile[], link: string, chatId: string | number, busin
                     MediaInput.audio(file.url)
                 );
             } else if (file.type === 'gif') {
-                await sendAnimation({ business_connection_id: businessId, chat_id: chatId, animation: file.url });
+                await sendAnimation({ business_connection_id: businessId, chat_id: chatId, animation: file.url, reply_parameters: { message_id: messageId } });
                 if (file.remove) {
                     localDownload.removeFile(file.remove);
                 }
@@ -58,7 +58,7 @@ const main = async (files: IFile[], link: string, chatId: string | number, busin
         if (files.length) {
             const mediaChunk = chunk(mediaGroup, 10);
             for (const media of mediaChunk) {
-                await sendMediaGroup({ business_connection_id: businessId, chat_id: chatId, media });
+                await sendMediaGroup({ business_connection_id: businessId, chat_id: chatId, media, reply_parameters: { message_id: messageId } });
             }
         }
     } catch (error) {
@@ -74,13 +74,13 @@ const main = async (files: IFile[], link: string, chatId: string | number, busin
     }
 };
 
-export const messageSend = async (link: string, chatId: string | number, businessId: string | undefined = undefined) => {
+export const messageSend = async (link: string, chatId: string | number, messageId: number, businessId: string | undefined = undefined) => {
     let lastError: Error | undefined;
 
     try {
         const cachedFileId = await redis.get(link);
         if (cachedFileId) {
-            await sendVideo({ business_connection_id: businessId, chat_id: chatId, video: cachedFileId });
+            await sendVideo({ business_connection_id: businessId, chat_id: chatId, video: cachedFileId, reply_parameters: { message_id: messageId } });
             return;
         }
     } catch { }
@@ -88,7 +88,7 @@ export const messageSend = async (link: string, chatId: string | number, busines
     for (const getFiles of getMethods(link)) {
         try {
             const files = await getFiles();
-            await main(files, link, chatId, businessId);
+            await main(files, link, chatId, messageId, businessId);
             return;
         } catch (error) {
             lastError = error as Error;

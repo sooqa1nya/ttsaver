@@ -13,7 +13,7 @@ export const start = new Composer()
                 return await context.send(`😔 The link was not found\nJust send me the link and I'll take care of everything 😏`);
             }
 
-            try { await messageSend(link, context.chat.id); }
+            try { await messageSend(link, context.chat.id, context.id); }
             catch (e) {
                 const errorMsg = `[StartCommand] Media send error - ${String(e)}`;
                 console.error(errorMsg, 'Link:', link);

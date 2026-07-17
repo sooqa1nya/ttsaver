@@ -1,9 +1,6 @@
-import { cobalt } from '../services/cobalt';
 import { localDownload } from '../services/local-download';
 import { redis } from '../services/redis';
 import { editMedia, sendAnimation, sendAudio, sendPhoto, sendVideo, sendMessage } from '../services/telegram-api';
-import { ttApiDl } from '../services/tiktok-api-dl';
-import { tikwm } from '../services/tikwm';
 import { showMoreKeyboard } from '../shared/keyboards';
 import { IFile } from '../types/files';
 import { getMethods } from './get-methods';

@@ -17,7 +17,7 @@ export const messages = new Composer({ name: 'messages' })
 
         for (const link of links) {
             try {
-                await messageSend(link, context.chat.id);
+                await messageSend(link, context.chat.id, context.id);
                 await context.clearReactions();
             }
             catch (e) {

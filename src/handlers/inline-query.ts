@@ -14,7 +14,6 @@ export const inlineQuery = new Composer({ name: 'inlineQuery' })
             const links = searchLinks(context.query, true);
             if (!links) {
                 const error = '[InlineQuery Handler] No links found for search query: ' + context.query;
-                console.error(error);
                 throw new Error(error);
             }
 

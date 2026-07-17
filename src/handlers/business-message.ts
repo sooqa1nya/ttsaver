@@ -17,7 +17,6 @@ export const businessMessages = new Composer({ name: 'businessMessages' })
         if (context.chat.id != context.from.id) await context.editReplyMarkup(infoBMKeyboard('⏳ Processing...'));
         for (const link of links) {
             try {
-                console.log(context);
                 await messageSend(link, context.chat.id, context.id, context.businessConnectionId);
                 try {
                     if (context.chat.id != context.from.id) await context.editReplyMarkup(emptyKeyboard);

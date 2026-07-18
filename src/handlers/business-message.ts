@@ -15,19 +15,25 @@ export const businessMessages = new Composer({ name: 'businessMessages' })
             return;
 
         if (context.chat.id != context.from.id) await context.editReplyMarkup(infoBMKeyboard('⏳ Processing...'));
-        for (const link of links) {
+        for (let i = 0; i < links.length; i++) {
+            const link = links[i];
+
             try {
                 await messageSend(link, context.chat.id, context.id, context.businessConnectionId);
-                try {
-                    if (context.chat.id != context.from.id) await context.editReplyMarkup(emptyKeyboard);
-                } catch (e) {
-                    const errorMsg = `[BusinessMessage] Failed to remove button - ${String(e)}`;
-                    console.error(errorMsg);
-                    await sendMessage({
-                        chat_id: process.env.CHAT_LOG!,
-                        text: `🔴 Business message | REMOVE BUTTON\n${errorMsg}\nUrl: ${link}`,
-                        link_preview_options: { is_disabled: true }
-                    });
+
+                // Last link = delete button
+                if (i === links.length - 1) {
+                    try {
+                        if (context.chat.id != context.from.id) await context.editReplyMarkup(emptyKeyboard);
+                    } catch (e) {
+                        const errorMsg = `[BusinessMessage] Failed to remove button - ${String(e)}`;
+                        console.error(errorMsg);
+                        await sendMessage({
+                            chat_id: process.env.CHAT_LOG!,
+                            text: `🔴 Business message | REMOVE BUTTON\n${errorMsg}\nUrl: ${link}`,
+                            link_preview_options: { is_disabled: true }
+                        });
+                    }
                 }
             }
             catch (e) {

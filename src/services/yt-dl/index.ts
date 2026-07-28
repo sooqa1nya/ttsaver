@@ -21,7 +21,7 @@ class Ytdl {
 
     private getDownloadAll = async (url: string, customPath: string, customName: string) => {
         return await youtubeDl(url, {
-            format: 'bestvideo+bestaudio/best',
+            format: 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best',
             mergeOutputFormat: 'mp4',
             paths: customPath,
             output: customName,

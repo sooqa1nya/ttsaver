@@ -52,7 +52,7 @@ class Ytdl {
         });
     };
 
-    private downloadMedia = async (url: string, info: Payload): Promise<{ folderPath: string; finalPath: string; }> => {
+    private downloadMedia = async (url: string, info: Payload): Promise<{ folderPath: string; filePath: string; }> => {
         try {
             const customPath = path.join(__dirname, 'temp/' + randomUUID());
             const customName = `%(title)s [${new Date().getTime()}].%(ext)s`;
@@ -86,7 +86,7 @@ class Ytdl {
                 throw new Error('[Ytdl] downloadMedia Error search path');
             }
 
-            return { folderPath: path.resolve(customPath), finalPath: path.resolve(finalPath) };
+            return { folderPath: path.resolve(customPath), filePath: path.resolve(finalPath) };
         } catch (error) {
             throw new Error('[Ytdl] downloadMedia Error downloading media: ' + error);
         }
@@ -99,12 +99,12 @@ class Ytdl {
         }
 
         const patches = await this.downloadMedia(url, info);
-        const format = patches.finalPath.match(/\.(\w+)$/)?.[1];
+        const format = patches.filePath.match(/\.(\w+)$/)?.[1];
         const type = (format === 'mp4' || format === 'webm') ? 'video' : 'audio';
 
         return [{
             type,
-            url: await MediaUpload.path(patches.finalPath),
+            url: await MediaUpload.path(patches.filePath),
             remove: patches.folderPath
         }];
     };

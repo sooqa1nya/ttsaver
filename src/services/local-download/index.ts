@@ -5,11 +5,15 @@ import { pipeline } from 'stream';
 import { createWriteStream } from 'fs';
 import { randomUUID } from 'node:crypto';
 import { rm } from 'node:fs/promises';
+import { mkdir } from 'node:fs/promises';
 
 
 class LocalDownload {
-    public async download(url: string, fileName: string): Promise<string> {
-        const folderPath = path.join(process.cwd(), 'temp/' + randomUUID());
+    public async download(url: string, fileName: string): Promise<{ folderPath: string; filePath: string; }> {
+        const UUID = randomUUID();
+
+        await mkdir(path.join(process.cwd(), 'temp/' + UUID), { recursive: true });
+        const folderPath = path.join(process.cwd(), 'temp/' + UUID);
         const streamPipeline = promisify(pipeline);
         const filePath: string = path.join(folderPath, fileName);
 
@@ -34,7 +38,7 @@ class LocalDownload {
 
             await streamPipeline(response.data, fileStream);
 
-            return folderPath;
+            return { folderPath, filePath };
         } catch (error) {
             this.removeFolder(folderPath);
             const errorMsg = `[LocalDownload] Failed to download URL: ${url}. Error: ${String(error)}`;

@@ -61,11 +61,11 @@ class TikTokApiDl {
 
         if (download.result?.images) {
             for (const element of download.result.images) {
-                const localFile = await localDownload.download(element, Math.floor(Math.random() * 100000).toString() + download.result.desc + '.jpg');
+                const patchs = await localDownload.download(element, Math.floor(Math.random() * 100000).toString() + download.result.desc + '.jpg');
                 files.push({
                     type: 'photo',
-                    url: await MediaUpload.path(localFile),
-                    remove: localFile
+                    url: await MediaUpload.path(patchs.filePath),
+                    remove: patchs.folderPath
                 });
             }
         } else if (download.result?.video) {
@@ -77,8 +77,8 @@ class TikTokApiDl {
                 const localFile = await localDownload.download(videoUrl, Math.floor(Math.random() * 100000).toString() + download.result.desc + '.mp4');
                 files.push({
                     type: 'video',
-                    url: await MediaUpload.path(localFile),
-                    remove: localFile
+                    url: await MediaUpload.path(localFile.filePath),
+                    remove: localFile.folderPath
                 });
                 break;
             }
@@ -123,8 +123,8 @@ class TikTokApiDl {
                 const localFile = await localDownload.download(videoUrl, Math.floor(Math.random() * 100000).toString() + download.result.desc + '.mp4');
                 files.push({
                     type: 'video',
-                    url: await MediaUpload.path(localFile),
-                    remove: localFile
+                    url: await MediaUpload.path(localFile.filePath),
+                    remove: localFile.folderPath
                 });
             }
         } else if (download.result?.videoSD) {

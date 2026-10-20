@@ -86,7 +86,7 @@ const main = async (files: IFile[], link: string, inlineMessageId: string) => {
     } finally {
         files.forEach(x => {
             if (x.remove) {
-                localDownload.removeFile(x.remove);
+                localDownload.removeFolder(x.remove);
             }
         });
     }

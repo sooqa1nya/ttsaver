@@ -50,7 +50,7 @@ const main = async (files: IFile[], link: string, chatId: string | number, messa
             } else if (file.type === 'gif') {
                 await sendAnimation({ business_connection_id: businessId, chat_id: chatId, animation: file.url, reply_parameters: { message_id: messageId } });
                 if (file.remove) {
-                    localDownload.removeFile(file.remove);
+                    localDownload.removeFolder(file.remove);
                 }
             }
         }
@@ -68,7 +68,7 @@ const main = async (files: IFile[], link: string, chatId: string | number, messa
     } finally {
         files.forEach(x => {
             if (x.remove) {
-                localDownload.removeFile(x.remove);
+                localDownload.removeFolder(x.remove);
             }
         });
     }

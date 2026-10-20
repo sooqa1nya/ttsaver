@@ -3,16 +3,15 @@ import path from 'node:path';
 import { promisify } from 'util';
 import { pipeline } from 'stream';
 import { createWriteStream } from 'fs';
-import { mkdir } from 'node:fs/promises';
-import { unlink } from 'node:fs';
+import { randomUUID } from 'node:crypto';
+import { rm } from 'node:fs/promises';
+
 
 class LocalDownload {
-    private folderPath: string = path.join(process.cwd(), "temp");
-
     public async download(url: string, fileName: string): Promise<string> {
-        await mkdir(this.folderPath, { recursive: true });
+        const folderPath = path.join(process.cwd(), 'temp/' + randomUUID());
         const streamPipeline = promisify(pipeline);
-        const filePath: string = path.join(this.folderPath, fileName);
+        const filePath: string = path.join(folderPath, fileName);
 
         try {
             const response = await axios({
@@ -35,22 +34,21 @@ class LocalDownload {
 
             await streamPipeline(response.data, fileStream);
 
-            return filePath;
+            return folderPath;
         } catch (error) {
-            this.removeFile(filePath);
+            this.removeFolder(folderPath);
             const errorMsg = `[LocalDownload] Failed to download URL: ${url}. Error: ${String(error)}`;
             console.error(errorMsg);
             throw new Error(errorMsg);
         }
     }
 
-    public removeFile(filePath: string) {
-        unlink(filePath, err => {
-            if (err && err.code !== 'ENOENT') {
-                const errorMsg = '[LocalDownload] Failed to remove file: ' + filePath + ' - ' + String(err);
-                console.error(errorMsg);
-            }
-        });
+    public async removeFolder(folderPath: string) {
+        try {
+            await rm(folderPath, { recursive: true, force: true });
+        } catch (error) {
+            console.error('[LocalDownload] Failed to remove folder', folderPath, error);
+        }
     }
 }
 

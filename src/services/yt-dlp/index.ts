@@ -3,6 +3,7 @@ import path from 'path';
 import { IFile } from '../../types/files';
 import { MediaUpload } from 'gramio';
 import { localDownload } from '../local-download';
+import { randomUUID } from 'crypto';
 
 
 class Ytdl {
@@ -51,9 +52,9 @@ class Ytdl {
         });
     };
 
-    private downloadMedia = async (url: string, info: Payload) => {
+    private downloadMedia = async (url: string, info: Payload): Promise<{ folderPath: string; finalPath: string; }> => {
         try {
-            const customPath = path.join(__dirname, 'temp');
+            const customPath = path.join(__dirname, 'temp/' + randomUUID());
             const customName = `%(title)s [${new Date().getTime()}].%(ext)s`;
 
             const ytdl = /(https?:\/\/)coub\.com\/([\S]+)/.test(url) ? await this.getDownloadCoub(url, customPath, customName, info) : await this.getDownloadAll(url, customPath, customName);
@@ -65,7 +66,7 @@ class Ytdl {
             if (/^[\s\S]*\[download\]\s+File\s+is\s+larger\s+than\s+max-filesize/.test(logs)) {
 
                 const regex = /^\[download\] Destination:\s+(.+)$/gm;
-                [...logs.matchAll(regex)].map(match => localDownload.removeFile(match[1]));
+                [...logs.matchAll(regex)].map(match => localDownload.removeFolder(customPath));
 
                 throw new Error('[Ytdl] downloadMedia Error: File is larger than max-filesize');
             }
@@ -85,7 +86,7 @@ class Ytdl {
                 throw new Error('[Ytdl] downloadMedia Error search path');
             }
 
-            return path.resolve(finalPath.trim());
+            return { folderPath: path.resolve(customPath), finalPath: path.resolve(finalPath) };
         } catch (error) {
             throw new Error('[Ytdl] downloadMedia Error downloading media: ' + error);
         }
@@ -97,14 +98,14 @@ class Ytdl {
             throw new Error('[Ytdl] download Invalid content info received: ' + info);
         }
 
-        const pathToFile = await this.downloadMedia(url, info);
-        const format = pathToFile.match(/\.(\w+)$/)?.[1];
+        const patches = await this.downloadMedia(url, info);
+        const format = patches.finalPath.match(/\.(\w+)$/)?.[1];
         const type = (format === 'mp4' || format === 'webm') ? 'video' : 'audio';
 
         return [{
             type,
-            url: await MediaUpload.path(pathToFile),
-            remove: pathToFile
+            url: await MediaUpload.path(patches.finalPath),
+            remove: patches.folderPath
         }];
     };
 }

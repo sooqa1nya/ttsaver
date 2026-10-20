@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { bot } from './bot.js';
+import { update } from 'youtube-dl-exec';
 
 
 const botStart = async () => {
@@ -21,6 +22,7 @@ const botStart = async () => {
         console.error("Unhandled rejection:", error);
     });
 
+    await update();
     await bot.start();
 };
 

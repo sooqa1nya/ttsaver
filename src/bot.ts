@@ -17,9 +17,9 @@ export const bot = new Bot(process.env.BOT_TOKEN!, {
     .extend(start)
     .extend(messages)
     .extend(inlineQuery)
+    .extend(guestMessage)
     .extend(businessMessages)
     .extend(service)
-    .extend(guestMessage)
     .onStart(
         ({ plugins }) => {
             console.log(`🤖 Бот запущен`);

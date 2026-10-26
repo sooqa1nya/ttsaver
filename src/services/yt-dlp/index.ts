@@ -53,8 +53,9 @@ class Ytdl {
     };
 
     private downloadMedia = async (url: string, info: Payload): Promise<{ folderPath: string; filePath: string; }> => {
+        const customPath = path.join(process.cwd(), 'temp/' + randomUUID());
+
         try {
-            const customPath = path.join(__dirname, 'temp/' + randomUUID());
             const customName = `%(title)s [${new Date().getTime()}].%(ext)s`;
 
             const ytdl = /(https?:\/\/)coub\.com\/([\S]+)/.test(url) ? await this.getDownloadCoub(url, customPath, customName, info) : await this.getDownloadAll(url, customPath, customName);
@@ -64,11 +65,7 @@ class Ytdl {
 
             // Проверка на превышение максимального размера файла
             if (/^[\s\S]*\[download\]\s+File\s+is\s+larger\s+than\s+max-filesize/.test(logs)) {
-
-                const regex = /^\[download\] Destination:\s+(.+)$/gm;
-                [...logs.matchAll(regex)].map(match => localDownload.removeFolder(customPath));
-
-                throw new Error('[Ytdl] downloadMedia Error: File is larger than max-filesize');
+                throw new Error('File is larger than max-filesize');
             }
 
             const mergerMatch = logs.match(/[\s\S]*\[Merger\]\s+Merging\s+formats\s+into\s+"(.+?)"/m);
@@ -83,12 +80,13 @@ class Ytdl {
             }
 
             if (!finalPath) {
-                throw new Error('[Ytdl] downloadMedia Error search path');
+                throw new Error('Error search path');
             }
 
             return { folderPath: path.resolve(customPath), filePath: path.resolve(finalPath) };
         } catch (error) {
-            throw new Error('[Ytdl] downloadMedia Error downloading media: ' + error);
+            localDownload.removeFolder(customPath);
+            throw new Error('[Ytdl]' + error);
         }
     };
 

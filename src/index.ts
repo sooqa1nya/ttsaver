@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { bot } from './bot.js';
 import { update } from 'youtube-dl-exec';
+import { localDownload } from './services/local-download/index.js';
 
 
 const botStart = async () => {
@@ -23,6 +24,7 @@ const botStart = async () => {
     });
 
     await update();
+    await localDownload.removeFolder(process.cwd() + '/temp');
     await bot.start();
 };
 

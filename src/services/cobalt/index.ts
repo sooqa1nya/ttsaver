@@ -1,7 +1,7 @@
 import { MediaUpload } from 'gramio';
-import { localDownload } from '../local-download';
 import { IResponseCobalt } from './types';
 import { IFile } from '../../types/files';
+
 
 class Cobalt {
     public download = async (url: string) => {
@@ -43,11 +43,9 @@ class Cobalt {
             });
         } else if (download.status === 'picker') {
             for (const element of download.picker) {
-                const isRemove = /http:\/\/cobalt-api:9000/.test(element.url);
                 files.push({
                     type: element.type,
-                    url: isRemove ? await MediaUpload.path(element.url) : await MediaUpload.url(element.url),
-                    ...(isRemove && { remove: element.url })
+                    url: await MediaUpload.url(element.url, 'file.' + element.type)
                 });
             }
         }

@@ -41,11 +41,14 @@ services:
     restart: unless-stopped
 
   ttsaver:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: sooqa1nya/ttsaver:latest
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
     container_name: ttsaver
     restart: unless-stopped
+    env_file:
+      - .env
     networks:
       - SaverAndCobalt
     depends_on:
